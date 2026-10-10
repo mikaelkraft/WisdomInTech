@@ -27,3 +27,8 @@ Thumbs.db
 # Build artifacts (already have /build)
 dist
 *.tsbuildinfo
+
+# Antigravity agents & workspace files
+.agents/
+skills-lock.json
+*.code-workspace
