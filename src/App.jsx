@@ -24,7 +24,7 @@ function App() {
         const ms = res.data?.ui_settings?.toast_duration_ms;
         if (typeof ms === "number" && ms >= 0) setToastDuration(ms);
       }
-      if (mounted && isSupabaseNoop && process.env.NODE_ENV !== "production") {
+      if (mounted && isSupabaseNoop && typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
         // Show a one-time toast to clarify environment state
         // ToastProvider context not yet accessible here? We can defer via setTimeout
         setTimeout(() => {

@@ -50,7 +50,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 if (
   isSupabaseNoop &&
   typeof window !== "undefined" &&
-  process.env.NODE_ENV !== "production"
+  typeof process !== "undefined" &&
+  process.env?.NODE_ENV !== "production"
 ) {
   // eslint-disable-next-line no-console
   console.info("[supabase] operating in no-op mode (frontend)");

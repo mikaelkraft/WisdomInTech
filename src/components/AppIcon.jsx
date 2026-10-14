@@ -8,19 +8,12 @@ function Icon({
   strokeWidth = 2,
   ...props
 }) {
-  const IconComponent = LucideIcons[name];
+  const IconComponent = LucideIcons[name] || LucideIcons.HelpCircle || LucideIcons.CircleHelp;
 
   if (!IconComponent) {
-    return (
-      <HelpCircle
-        size={size}
-        color="gray"
-        strokeWidth={strokeWidth}
-        className={className}
-        {...props}
-      />
-    );
+    return null;
   }
+
 
   return (
     <IconComponent
