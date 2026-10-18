@@ -4,12 +4,24 @@ const { Pool } = require('pg');
 const crypto = require('crypto');
 
 (async () => {
-  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  const connectionString =
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_URL ||
+    process.env.WIT_POSTGRES_URL ||
+    process.env.WIT_DATABASE_URL ||
+    process.env.WIT_POSTGRES_URL_NON_POOLING;
   if (!connectionString) {
-    console.error('POSTGRES_URL (or DATABASE_URL) env var is required');
+    console.error('POSTGRES_URL (or WIT_POSTGRES_URL) env var is required');
     process.exit(1);
   }
-  const ssl = process.env.POSTGRES_SSL === 'true' ? { rejectUnauthorized: false } : false;
+  const ssl =
+    process.env.POSTGRES_SSL === 'true' ||
+    process.env.WIT_POSTGRES_SSL === 'true' ||
+    (connectionString &&
+      (connectionString.includes('neon.tech') ||
+        connectionString.includes('sslmode=require')))
+      ? { rejectUnauthorized: false }
+      : false;
   const pool = new Pool({ connectionString, ssl });
   const client = await pool.connect();
   try {

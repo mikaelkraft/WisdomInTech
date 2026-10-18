@@ -7,17 +7,25 @@ let pool;
 function getPool() {
   if (!pool) {
     const connectionString =
-      process.env.POSTGRES_URL || process.env.DATABASE_URL;
+      process.env.POSTGRES_URL ||
+      process.env.DATABASE_URL ||
+      process.env.WIT_POSTGRES_URL ||
+      process.env.WIT_DATABASE_URL ||
+      process.env.WIT_POSTGRES_URL_NON_POOLING;
     if (!connectionString) {
-      throw new Error("POSTGRES_URL is not set");
+      throw new Error("POSTGRES_URL (or WIT_POSTGRES_URL) is not set");
     }
+
+    const needsSsl =
+      process.env.POSTGRES_SSL === "true" ||
+      process.env.WIT_POSTGRES_SSL === "true" ||
+      (connectionString &&
+        (connectionString.includes("neon.tech") ||
+          connectionString.includes("sslmode=require")));
 
     pool = new Pool({
       connectionString,
-      ssl:
-        process.env.POSTGRES_SSL === "true"
-          ? { rejectUnauthorized: false }
-          : false,
+      ssl: needsSsl ? { rejectUnauthorized: false } : false,
       max: Number(process.env.PG_POOL_MAX || 5),
       idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT || 30000),
     });

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import settingsService from "./utils/settingsService";
 import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter } from "react-router-dom";
 import { ToastProvider, ToastContainer } from "./contexts/ToastContext.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import Routes from "./Routes.jsx";
 import OGMeta from "./components/seo/OGMeta.jsx";
 import Canonical from "./components/seo/Canonical.jsx";
 import DevOtpBanner from "./components/auth/DevOtpBanner.jsx";
-import Header from "./components/layout/Header.jsx";
 import { isSupabaseNoop } from "./utils/supabase.js";
 // CommandPalette may not exist; guard its import dynamically if missing
 // If CommandPalette component exists, it will be tree-shaken in future refactor; placeholder now
@@ -49,17 +49,18 @@ function App() {
 
   return (
     <HelmetProvider>
-      <ToastProvider defaultDuration={toastDuration}>
-        <AuthProvider>
-          <Header />
-          <OGMeta />
-          <Routes />
-          <Canonical />
-          <ToastContainer />
-          <DevOtpBanner />
-          <CommandPalette />
-        </AuthProvider>
-      </ToastProvider>
+      <BrowserRouter>
+        <ToastProvider defaultDuration={toastDuration}>
+          <AuthProvider>
+            <OGMeta />
+            <Canonical />
+            <Routes />
+            <ToastContainer />
+            <DevOtpBanner />
+            <CommandPalette />
+          </AuthProvider>
+        </ToastProvider>
+      </BrowserRouter>
     </HelmetProvider>
   );
 }

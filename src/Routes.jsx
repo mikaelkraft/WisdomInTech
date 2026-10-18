@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import { Routes as RouterRoutes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import PortfolioHomeHero from "./pages/portfolio-home-hero";
@@ -17,10 +17,9 @@ import NotFound from "./pages/NotFound.jsx";
 
 const Routes = () => {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <ScrollToTop />
-        <RouterRoutes>
+    <ErrorBoundary>
+      <ScrollToTop />
+      <RouterRoutes>
           {/* Define your routes here */}
           <Route path="/" element={<PortfolioHomeHero />} />
           <Route path="/portfolio-home-hero" element={<PortfolioHomeHero />} />
@@ -54,7 +53,6 @@ const Routes = () => {
           <Route path="*" element={<NotFound />} />
         </RouterRoutes>
       </ErrorBoundary>
-    </BrowserRouter>
   );
 };
 
