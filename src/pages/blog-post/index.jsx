@@ -1,7 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import blogService from "utils/blogService";
-// Removed direct Helmet usage; OGMeta now centralizes meta tags
+import HeaderNavigation from "../../components/ui/HeaderNavigation.jsx";
+import OGMeta from "../../components/seo/OGMeta.jsx";
+import Icon from "../../components/AppIcon.jsx";
+import RoleBadge from "../../components/ui/RoleBadge.jsx";
 
 const BlogPost = () => {
   const { slug } = useParams();

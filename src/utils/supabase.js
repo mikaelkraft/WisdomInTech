@@ -7,10 +7,18 @@ function buildNoopClient(reason = "supabase_env_missing") {
   const errorResp = () =>
     Promise.resolve({ data: null, error: { message: reason } });
   return {
-    auth: new Proxy(
-      {},
-      { get: () => async () => ({ data: null, error: { message: reason } }) },
-    ),
+    auth: {
+      onAuthStateChange: () => ({
+        data: { subscription: { id: "noop-sub", callback: () => {}, unsubscribe: () => {} } },
+      }),
+      getSession: async () => ({ data: { session: null }, error: null }),
+      getUser: async () => ({ data: { user: null }, error: null }),
+      signOut: async () => ({ error: null }),
+      signInWithPassword: async () => ({ data: null, error: { message: reason } }),
+      signUp: async () => ({ data: null, error: { message: reason } }),
+      verifyOtp: async () => ({ data: null, error: { message: reason } }),
+      resetPasswordForEmail: async () => ({ error: null }),
+    },
     from: () => ({
       select: errorResp,
       update: errorResp,

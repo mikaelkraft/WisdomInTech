@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { validateSlide } from "../../../utils/validation";
+import Button from "../../../components/ui/Button.jsx";
+import Input from "../../../components/ui/Input.jsx";
+import Icon from "../../../components/AppIcon.jsx";
+import Image from "../../../components/AppImage.jsx";
+import FileUpload from "../../../components/ui/FileUpload.jsx";
 
 const SlidesManagement = ({
   slides,

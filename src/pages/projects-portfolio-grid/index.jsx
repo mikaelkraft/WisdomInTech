@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-// Helmet removed; global OGMeta handles tags
+import { Helmet } from "react-helmet-async";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
 import ProjectCard from "./components/ProjectCard";

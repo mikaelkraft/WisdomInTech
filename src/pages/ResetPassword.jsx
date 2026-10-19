@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../utils/supabase";
+import Icon from "../components/AppIcon.jsx";
+import Input from "../components/ui/Input.jsx";
+import Button from "../components/ui/Button.jsx";
 
 const ResetPassword = () => {
   const navigate = useNavigate();

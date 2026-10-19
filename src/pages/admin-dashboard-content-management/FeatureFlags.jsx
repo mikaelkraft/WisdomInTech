@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useFeature, { resetAllFeatureOverrides } from "hooks/useFeature";
+import HeaderNavigation from "../../components/ui/HeaderNavigation.jsx";
 
 export default function FeatureFlagsPage() {
   const adminGateEnabled = useFeature("feature_flags_admin", true); // always true until gated separately

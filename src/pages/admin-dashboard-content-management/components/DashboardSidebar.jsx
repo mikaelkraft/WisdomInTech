@@ -1,3 +1,6 @@
+import Icon from "../../../components/AppIcon.jsx";
+import Button from "../../../components/ui/Button.jsx";
+
 const DashboardSidebar = ({ activeSection, onSectionChange, stats }) => {
   const navigationItems = [
     {

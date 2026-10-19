@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import MarkdownToolbar from "../../../components/ui/MarkdownToolbar"; // kept for any other future inline uses
 import MarkdownField from "../../../components/ui/MarkdownField";
 import storageService from "../../../utils/storageService";
-// Removed Helmet; meta editing is not handled inline
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../../../contexts/AuthContext";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";

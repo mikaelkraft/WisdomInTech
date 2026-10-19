@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/ui/Button.jsx";
+import Icon from "../components/AppIcon.jsx";
 
 const NotFound = () => {
   const navigate = useNavigate();

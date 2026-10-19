@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import useFeature from "hooks/useFeature";
-import { useNavigate } from "react-router-dom";
+import Icon from "../AppIcon.jsx";
+import Button from "./Button.jsx";
+import SearchModal from "./SearchModal.jsx";
+import AuthModal from "../auth/AuthModal.jsx";
 
 const HeaderNavigation = ({
   onThemeControlsToggle,

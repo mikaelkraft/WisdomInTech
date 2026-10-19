@@ -6,6 +6,17 @@ import settingsService from "../../utils/settingsService";
 import publisherProgramService from "../../utils/publisherProgramService";
 import useFeature from "../../hooks/useFeature";
 import { useToast } from "../../contexts/ToastContext";
+import HeaderNavigation from "../../components/ui/HeaderNavigation.jsx";
+import RoleBadge from "../../components/ui/RoleBadge.jsx";
+import BrandingHints from "../../components/admin/BrandingHints.jsx";
+import DashboardSidebar from "./components/DashboardSidebar.jsx";
+import DashboardOverview from "./components/DashboardOverview.jsx";
+import AnalyticsOverview from "./components/AnalyticsOverview.jsx";
+import ProjectsManagement from "./components/ProjectsManagement.jsx";
+import BlogManagement from "./components/BlogManagement.jsx";
+import BlogEditor from "./components/BlogEditor.jsx";
+import SlidesManagement from "./components/SlidesManagement.jsx";
+import SiteSettings from "./components/SiteSettings.jsx";
 
 const AdminDashboardContentManagement = () => {
   const { show } = useToast();

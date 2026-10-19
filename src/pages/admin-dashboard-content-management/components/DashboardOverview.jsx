@@ -1,3 +1,19 @@
+import Icon from "../../../components/AppIcon.jsx";
+import {
+  ResponsiveContainer,
+  LineChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
 const DashboardOverview = ({ stats, analytics }) => {
   const statCards = [
     {

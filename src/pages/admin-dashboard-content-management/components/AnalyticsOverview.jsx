@@ -1,4 +1,17 @@
 import { useState, useEffect } from "react";
+import Icon from "../../../components/AppIcon.jsx";
+import {
+  ResponsiveContainer,
+  LineChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const AnalyticsOverview = () => {
   const [analytics, setAnalytics] = useState({

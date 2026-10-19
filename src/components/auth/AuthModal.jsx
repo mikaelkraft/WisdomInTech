@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import Login from "./Login.jsx";
+
 // Auth modal (login only)
 
 const AuthModal = ({ isOpen, onClose }) => {

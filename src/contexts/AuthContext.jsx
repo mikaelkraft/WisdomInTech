@@ -85,35 +85,41 @@ export function AuthProvider({ children }) {
     initializeAuth();
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = authService.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
+    let authSub = null;
+    try {
+      const authChangeRes = authService.onAuthStateChange(
+        async (event, session) => {
+          if (!isMounted) return;
 
-      setAuthError(null);
+          setAuthError(null);
 
-      if (event === "SIGNED_IN" && session?.user) {
-        setUser(session.user);
+          if (event === "SIGNED_IN" && session?.user) {
+            setUser(session.user);
 
-        // Fetch user profile for signed in user
-        authService.getUserProfile(session.user.id).then((profileResult) => {
-          if (profileResult?.success && isMounted) {
-            setUserProfile(profileResult.data);
-          } else if (isMounted) {
-            setAuthError(profileResult?.error || "Failed to load user profile");
+            // Fetch user profile for signed in user
+            authService.getUserProfile(session.user.id).then((profileResult) => {
+              if (profileResult?.success && isMounted) {
+                setUserProfile(profileResult.data);
+              } else if (isMounted) {
+                setAuthError(profileResult?.error || "Failed to load user profile");
+              }
+            });
+          } else if (event === "SIGNED_OUT") {
+            setUser(null);
+            setUserProfile(null);
+          } else if (event === "TOKEN_REFRESHED" && session?.user) {
+            setUser(session.user);
           }
-        });
-      } else if (event === "SIGNED_OUT") {
-        setUser(null);
-        setUserProfile(null);
-      } else if (event === "TOKEN_REFRESHED" && session?.user) {
-        setUser(session.user);
-      }
-    });
+        },
+      );
+      authSub = authChangeRes?.data?.subscription || authChangeRes?.subscription || null;
+    } catch (e) {
+      console.warn("Auth subscription setup warning:", e);
+    }
 
     return () => {
       isMounted = false;
-      subscription?.unsubscribe?.();
+      authSub?.unsubscribe?.();
     };
   }, []);
 

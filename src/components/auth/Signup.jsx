@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle, UserPlus, AlertCircle, EyeOff, Eye } from "lucide-react";
+import Input from "../ui/Input.jsx";
+import Button from "../ui/Button.jsx";
 
 const Signup = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({

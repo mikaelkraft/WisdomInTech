@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import storageService from "../../utils/storageService";
+import Icon from "../AppIcon.jsx";
+import Button from "./Button.jsx";
 
 const ACCEPT_MAP = {
   image: "image/*",

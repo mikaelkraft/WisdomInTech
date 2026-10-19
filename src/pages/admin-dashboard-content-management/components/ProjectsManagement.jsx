@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { validateProject } from "../../../utils/validation";
+import Button from "../../../components/ui/Button.jsx";
+import Image from "../../../components/AppImage.jsx";
+import Input from "../../../components/ui/Input.jsx";
+import Icon from "../../../components/AppIcon.jsx";
+import FileUpload from "../../../components/ui/FileUpload.jsx";
 
 const ProjectsManagement = ({
   projects,

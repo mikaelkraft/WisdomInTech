@@ -1,4 +1,8 @@
 import { useState } from "react";
+import Input from "../../../components/ui/Input.jsx";
+import Icon from "../../../components/AppIcon.jsx";
+import FileUpload from "../../../components/ui/FileUpload.jsx";
+import Button from "../../../components/ui/Button.jsx";
 
 const SiteSettings = ({ settings, onSettingsUpdate }) => {
   const [activeTab, setActiveTab] = useState("general");

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-// Removed Helmet (react-helmet) usage; meta handled globally via OGMeta / Canonical
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../../contexts/AuthContext";
 import HeaderNavigation from "../../components/ui/HeaderNavigation";
 import SearchHeader from "./components/SearchHeader";

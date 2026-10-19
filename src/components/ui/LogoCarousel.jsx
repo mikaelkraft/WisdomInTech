@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import Image from "../AppImage.jsx";
 
 const LogoCarousel = ({
   images = [],

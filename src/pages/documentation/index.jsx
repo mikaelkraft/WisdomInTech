@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// Removed Helmet; centralized SEO handled elsewhere
+import { Helmet } from "react-helmet-async";
 import HeaderNavigation from "../../components/ui/HeaderNavigation";
 import DynamicFooter from "../portfolio-home-hero/components/DynamicFooter";
 import Icon from "../../components/AppIcon";
