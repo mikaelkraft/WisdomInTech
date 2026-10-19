@@ -156,17 +156,6 @@ class AuthService {
       if (!email || email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         return { success: false, error: "This email is not allowed." };
       }
-      // Local dev fallback: generate a code and store it locally
-      if (this.isDevEnv()) {
-        const code = String(Math.floor(100000 + Math.random() * 900000));
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("dev_admin_email", email);
-          window.localStorage.setItem("dev_admin_code", code);
-          // Surface in console for local testing
-          console.warn("[DEV ONLY] Admin OTP code:", code);
-        }
-        return { success: true, data: { dev: true } };
-      }
 
       const { data, error } = await supabase.auth.signInWithOtp({
         email,
@@ -202,31 +191,6 @@ class AuthService {
     try {
       if (!email || email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         return { success: false, error: "This email is not allowed." };
-      }
-
-      // Local dev fallback: accept local code and set dev admin flag
-      if (this.isDevEnv()) {
-        const storedEmail =
-          typeof window !== "undefined"
-            ? window.localStorage.getItem("dev_admin_email")
-            : null;
-        const storedCode =
-          typeof window !== "undefined"
-            ? window.localStorage.getItem("dev_admin_code")
-            : null;
-        if (
-          storedEmail &&
-          storedCode &&
-          storedEmail.toLowerCase() === email.toLowerCase() &&
-          String(token) === String(storedCode)
-        ) {
-          try {
-            window.localStorage.setItem("dev_admin", "true");
-            window.localStorage.removeItem("dev_admin_code");
-          } catch {}
-          return { success: true, data: { dev: true } };
-        }
-        return { success: false, error: "Invalid code (dev)" };
       }
 
       const { data, error } = await supabase.auth.verifyOtp({
@@ -422,18 +386,6 @@ class AuthService {
   // Check if user is admin
   async isAdmin() {
     try {
-      // Local dev admin shortcut
-      try {
-        if (
-          typeof window !== "undefined" &&
-          window.localStorage.getItem("dev_admin") === "true"
-        ) {
-          return true;
-        }
-      } catch {
-        // ignore
-      }
-
       const {
         data: { user },
       } = await supabase.auth.getUser();

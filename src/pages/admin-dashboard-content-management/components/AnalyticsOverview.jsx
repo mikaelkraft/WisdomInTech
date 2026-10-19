@@ -86,7 +86,7 @@ const AnalyticsOverview = () => {
     }
   };
 
-  const COLORS = ["#00FFFF", "#FF0080", "#39FF14", "#FFB000", "#8B5CF6"];
+  const COLORS = ["#00ff66", "#FF0080", "#39FF14", "#FFB000", "#8B5CF6"];
 
   const statCards = [
     {
@@ -228,9 +228,9 @@ const AnalyticsOverview = () => {
               <Line
                 type="monotone"
                 dataKey="views"
-                stroke="#00FFFF"
+                stroke="#00ff66"
                 strokeWidth={2}
-                dot={{ fill: "#00FFFF" }}
+                dot={{ fill: "#00ff66" }}
               />
               <Line
                 type="monotone"

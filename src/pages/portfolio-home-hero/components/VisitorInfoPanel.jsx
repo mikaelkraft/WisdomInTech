@@ -1,26 +1,93 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/AppIcon';
 
+const getBrowserAndOS = () => {
+  if (typeof window === 'undefined' || !navigator) return { browser: 'Modern Browser', os: 'Desktop' };
+  const ua = navigator.userAgent;
+  let browser = 'Chrome';
+  let os = 'Unknown OS';
+
+  if (ua.includes('Firefox/')) {
+    const v = ua.split('Firefox/')[1]?.split(' ')[0];
+    browser = `Firefox ${v ? v.split('.')[0] : ''}`;
+  } else if (ua.includes('Edg/')) {
+    const v = ua.split('Edg/')[1]?.split(' ')[0];
+    browser = `Edge ${v ? v.split('.')[0] : ''}`;
+  } else if (ua.includes('Chrome/')) {
+    const v = ua.split('Chrome/')[1]?.split(' ')[0];
+    browser = `Chrome ${v ? v.split('.')[0] : ''}`;
+  } else if (ua.includes('Safari/') && !ua.includes('Chrome')) {
+    const v = ua.split('Version/')[1]?.split(' ')[0];
+    browser = `Safari ${v ? v.split('.')[0] : ''}`;
+  }
+
+  if (ua.includes('Win')) os = 'Windows';
+  else if (ua.includes('Mac')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+  return { browser: `${browser.trim()}`, os };
+};
+
+const getConnectionInfo = () => {
+  if (typeof navigator === 'undefined') return 'High-Speed';
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!conn) return 'Broadband';
+  const type = conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Online';
+  const downlink = conn.downlink ? ` (${conn.downlink} Mbps)` : '';
+  return `${type}${downlink}`;
+};
+
+const getPreferredLanguage = () => {
+  if (typeof navigator === 'undefined') return 'en-US';
+  const lang = (navigator.languages && navigator.languages[0]) || navigator.language || 'en-US';
+  try {
+    const intl = new Intl.DisplayNames(['en'], { type: 'language' });
+    const code = lang.split('-')[0];
+    const name = intl.of(code);
+    return `${name || lang} (${lang})`;
+  } catch {
+    return lang;
+  }
+};
+
+const getTimezoneString = () => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const offsetMin = -new Date().getTimezoneOffset();
+    const sign = offsetMin >= 0 ? '+' : '-';
+    const hrs = String(Math.floor(Math.abs(offsetMin) / 60)).padStart(2, '0');
+    const mins = String(Math.abs(offsetMin) % 60).padStart(2, '0');
+    return `${tz} (UTC${sign}${hrs}:${mins})`;
+  } catch {
+    return 'UTC';
+  }
+};
+
 const VisitorInfoPanel = ({ currentTheme }) => {
+  const browserInfo = typeof window !== 'undefined' ? getBrowserAndOS() : { browser: 'Chrome', os: 'Desktop' };
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+
   const [visitorInfo, setVisitorInfo] = useState({
     currentTime: new Date(),
-    ipAddress: "192.168.1.100",
-    ispProvider: "CyberNet ISP",
-    browser: "Chrome 120.0",
-    deviceRAM: "16 GB",
-    cpuCores: "8 cores",
-    connectionType: "WiFi",
-    displaySize: "1920x1080",
-    screenResolution: "2560x1440",
-    preferredLanguage: "English (US)",
-    location: "San Francisco, CA",
-    timezone: "PST (UTC-8)"
+    ipAddress: "Resolving IP...",
+    ispProvider: "Detecting network...",
+    browser: `${browserInfo.browser} on ${browserInfo.os}`,
+    deviceRAM: typeof navigator !== 'undefined' && navigator.deviceMemory ? `${navigator.deviceMemory} GB+` : "8 GB (Protected)",
+    cpuCores: typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : "8 Cores",
+    connectionType: typeof window !== 'undefined' ? getConnectionInfo() : "Broadband",
+    displaySize: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight} viewport` : "1920x1080",
+    screenResolution: typeof window !== 'undefined' && window.screen ? `${Math.round(window.screen.width * dpr)}x${Math.round(window.screen.height * dpr)} (${dpr}x DPR)` : "1920x1080",
+    preferredLanguage: typeof window !== 'undefined' ? getPreferredLanguage() : "English (en-US)",
+    location: "Locating region...",
+    timezone: typeof window !== 'undefined' ? getTimezoneString() : "UTC"
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Live real-time clock
   useEffect(() => {
-    // Update time every second
     const timeInterval = setInterval(() => {
       setVisitorInfo(prev => ({
         ...prev,
@@ -28,18 +95,76 @@ const VisitorInfoPanel = ({ currentTheme }) => {
       }));
     }, 1000);
 
-    // Simulate real-time data updates
-    const dataInterval = setInterval(() => {
+    return () => clearInterval(timeInterval);
+  }, []);
+
+  // Update dynamic viewport on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window === 'undefined') return;
+      const currentDpr = window.devicePixelRatio || 1;
       setVisitorInfo(prev => ({
         ...prev,
-        connectionType: Math.random() > 0.8 ? "Ethernet" : "WiFi",
-        deviceRAM: Math.random() > 0.5 ? "16 GB" : "32 GB"
+        displaySize: `${window.innerWidth}x${window.innerHeight} viewport`,
+        screenResolution: window.screen ? `${Math.round(window.screen.width * currentDpr)}x${Math.round(window.screen.height * currentDpr)} (${currentDpr}x DPR)` : prev.screenResolution
       }));
-    }, 10000);
+    };
 
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Real IP and Geo location resolution
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchGeo = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled && data && !data.error) {
+            setVisitorInfo(prev => ({
+              ...prev,
+              ipAddress: data.ip || prev.ipAddress,
+              ispProvider: data.org || data.asn || 'Public Provider',
+              location: [data.city, data.region_code || data.region, data.country_name].filter(Boolean).join(', ') || 'Global'
+            }));
+            return;
+          }
+        }
+      } catch (err) {
+        // Fallback below
+      }
+
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled && data?.ip) {
+            setVisitorInfo(prev => ({
+              ...prev,
+              ipAddress: data.ip,
+              ispProvider: 'Direct Connection',
+              location: 'Client Verified'
+            }));
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setVisitorInfo(prev => ({
+            ...prev,
+            ipAddress: '127.0.0.1 (Local Session)',
+            ispProvider: 'Direct Host',
+            location: 'Client Environment'
+          }));
+        }
+      }
+    };
+
+    fetchGeo();
     return () => {
-      clearInterval(timeInterval);
-      clearInterval(dataInterval);
+      cancelled = true;
     };
   }, []);
 
@@ -121,23 +246,15 @@ const VisitorInfoPanel = ({ currentTheme }) => {
   return (
     <section className={`py-20 px-6 relative overflow-hidden ${themeClasses.bg}`}>
       {/* Network Grid Background */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className={`w-full h-full ${themeClasses.grid}`} style={{
           backgroundImage: `
-            linear-gradient(${currentTheme === 'light' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 255, 255, 0.1)'} 1px, transparent 1px),
-            linear-gradient(90deg, ${currentTheme === 'light' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 255, 255, 0.1)'} 1px, transparent 1px)
+            linear-gradient(${currentTheme === 'light' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 255, 102, 0.08)'} 1px, transparent 1px),
+            linear-gradient(90deg, ${currentTheme === 'light' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(0, 255, 102, 0.08)'} 1px, transparent 1px)
           `,
           backgroundSize: '30px 30px'
         }}>
         </div>
-        {/* Animated Network Nodes */}
-        {currentTheme !== 'light' && (
-          <>
-            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-            <div className="absolute top-3/4 right-1/4 w-2 h-2 bg-secondary rounded-full animate-pulse delay-500"></div>
-            <div className="absolute bottom-1/4 left-1/2 w-2 h-2 bg-accent rounded-full animate-pulse delay-1000"></div>
-          </>
-        )}
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -270,10 +387,10 @@ const VisitorInfoPanel = ({ currentTheme }) => {
               <Icon name="Shield" size={20} className={themeClasses.accent} />
               <div>
                 <div className={`font-medium text-sm ${themeClasses.text}`}>
-                  Privacy & Security
+                  Privacy & Telemetry Verification
                 </div>
                 <div className={`text-xs mt-1 ${themeClasses.secondary}`}>
-                  This information is collected for demonstration purposes only and is not stored or transmitted to external servers.
+                  All metrics are retrieved live via browser APIs and client lookup. No visitor telemetry or IP data is tracked or persisted to backend servers.
                 </div>
               </div>
             </div>

@@ -8,7 +8,7 @@ module.exports = {
     extend: {
       colors: {
         // Primary Colors
-        'primary': '#00FFFF', // electric cyan
+        'primary': '#00ff66', // terminal green
         'primary-foreground': '#0A0A0F', // deep space blue-black
         
         // Secondary Colors
@@ -39,7 +39,7 @@ module.exports = {
         
         // Border Colors
         'border': '#1A1A2E', // elevated dark blue-gray
-        'border-accent': '#00FFFF', // electric cyan
+        'border-accent': '#00ff66', // terminal green
       },
       fontFamily: {
         'heading': ['JetBrains Mono', 'monospace'],
@@ -58,13 +58,13 @@ module.exports = {
         'fluid-4xl': 'clamp(2.25rem, 1.9rem + 1.75vw, 3rem)',
       },
       boxShadow: {
-        'glow-primary': '0 0 8px rgba(0, 255, 255, 0.2)',
+        'glow-primary': '0 0 8px rgba(0, 255, 102, 0.25)',
         'glow-secondary': '0 0 8px rgba(255, 0, 128, 0.2)',
-        'glow-accent': '0 0 8px rgba(57, 255, 20, 0.2)',
-        'glow-primary-lg': '0 0 16px rgba(0, 255, 255, 0.3)',
+        'glow-accent': '0 0 8px rgba(57, 255, 20, 0.25)',
+        'glow-primary-lg': '0 0 16px rgba(0, 255, 102, 0.35)',
         'glow-secondary-lg': '0 0 16px rgba(255, 0, 128, 0.3)',
-        'glow-accent-lg': '0 0 16px rgba(57, 255, 20, 0.3)',
-        'neon': '0 0 4px rgba(0, 255, 255, 0.3), inset 0 0 4px rgba(0, 255, 255, 0.1)',
+        'glow-accent-lg': '0 0 16px rgba(57, 255, 20, 0.35)',
+        'neon': '0 0 4px rgba(0, 255, 102, 0.3), inset 0 0 4px rgba(0, 255, 102, 0.1)',
       },
       animation: {
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite alternate',
@@ -76,10 +76,10 @@ module.exports = {
       keyframes: {
         'pulse-glow': {
           'from': {
-            'box-shadow': '0 0 4px rgba(0, 255, 255, 0.2)',
+            'box-shadow': '0 0 4px rgba(0, 255, 102, 0.2)',
           },
           'to': {
-            'box-shadow': '0 0 12px rgba(0, 255, 255, 0.4)',
+            'box-shadow': '0 0 12px rgba(0, 255, 102, 0.35)',
           },
         },
         'terminal-scan': {

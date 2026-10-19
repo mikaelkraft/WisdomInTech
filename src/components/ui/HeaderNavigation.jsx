@@ -20,9 +20,6 @@ const HeaderNavigation = ({
   const location = useLocation();
   const { userProfile, signOut } = useAuth();
   const isAdmin = userProfile?.role === "admin";
-  const isDevAdmin =
-    typeof window !== "undefined" &&
-    window.localStorage.getItem("dev_admin") === "true";
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const navigationItems = [

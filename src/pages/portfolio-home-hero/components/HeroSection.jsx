@@ -114,21 +114,21 @@ const HeroSection = ({ currentTheme }) => {
 
   return (
     <section className={`min-h-screen flex items-center justify-center px-6 py-20 relative overflow-hidden ${currentTheme === 'light' ? 'bg-white' : 'bg-background'}`}>
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Ambient Background Elements (stabilized to prevent raster stall & black flashes) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {currentTheme !== 'light' && (
           <>
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full cyber-grid opacity-10"></div>
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl opacity-60"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tl from-secondary/10 to-transparent rounded-full blur-2xl opacity-50"></div>
+            <div className="absolute inset-0 cyber-grid opacity-10"></div>
           </>
         )}
       </div>
 
       <div className="max-w-6xl mx-auto text-center relative z-10">
         {/* Profile Image */}
-  <div className="mt-8 md:mt-16 mb-8 flex justify-center">
-          <div className={`relative w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 ${currentTheme === 'light' ? 'border-blue-200' : 'border-primary/50'} hover-glow-primary transition-all duration-normal`}>
+        <div className="mt-8 md:mt-16 mb-8 flex justify-center">
+          <div className={`relative w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 ${currentTheme === 'light' ? 'border-blue-200' : 'border-primary/50'} hover-glow-primary transition-all duration-normal shadow-glow-primary`}>
             <Image 
               src={settings.heroImageUrl || settings.hero_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"}
               alt="Mikael Kraft - Full Stack Developer"
@@ -139,10 +139,10 @@ const HeroSection = ({ currentTheme }) => {
         </div>
 
         {/* Main Heading */}
-        <h1 className={`font-heading text-4xl lg:text-6xl xl:text-7xl font-bold mb-6 ${textColors.primary}`}>
-          <span className="block">Mikael</span>
-          <span className={`block bg-gradient-to-r ${currentTheme === 'light' ? 'from-blue-600 to-purple-600' : 'from-primary to-secondary'} bg-clip-text text-transparent`}>
-            Kraft
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 tracking-tight flex items-center justify-center flex-wrap gap-x-3 text-[#39FF14]">
+          <span className="text-[#39FF14] opacity-90 select-none font-mono">//</span>
+          <span className="text-[#39FF14] drop-shadow-[0_0_24px_rgba(57,255,20,0.5)]">
+            Mikael Kraft
           </span>
         </h1>
 

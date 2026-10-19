@@ -7,7 +7,6 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import Routes from "./Routes.jsx";
 import OGMeta from "./components/seo/OGMeta.jsx";
 import Canonical from "./components/seo/Canonical.jsx";
-import DevOtpBanner from "./components/auth/DevOtpBanner.jsx";
 import { isSupabaseNoop } from "./utils/supabase.js";
 // CommandPalette may not exist; guard its import dynamically if missing
 // If CommandPalette component exists, it will be tree-shaken in future refactor; placeholder now
@@ -56,7 +55,6 @@ function App() {
             <Canonical />
             <Routes />
             <ToastContainer />
-            <DevOtpBanner />
             <CommandPalette />
           </AuthProvider>
         </ToastProvider>

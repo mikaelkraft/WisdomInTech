@@ -150,13 +150,12 @@ const PortfolioHomeHero = () => {
         {/* Dynamic Footer */}
         <DynamicFooter currentTheme={currentTheme} />
 
-        {/* Background Effects */}
+        {/* Background Effects - Stabilized to eliminate compositor stalls & black flashes */}
         {currentTheme !== "light" && (
-          <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-            <div className="absolute top-0 left-0 w-full h-full cyber-grid opacity-5"></div>
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+          <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+            <div className="absolute top-0 left-0 w-full h-full cyber-grid opacity-10"></div>
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-2xl opacity-40"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-2xl opacity-30"></div>
           </div>
         )}
 

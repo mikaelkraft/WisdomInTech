@@ -50,7 +50,7 @@ const DashboardOverview = ({ stats, analytics }) => {
     },
   ];
 
-  const COLORS = ["#00FFFF", "#FF0080", "#39FF14", "#FFB000"];
+  const COLORS = ["#00ff66", "#FF0080", "#39FF14", "#FFB000"];
 
   return (
     <div className="space-y-8">
@@ -120,14 +120,14 @@ const DashboardOverview = ({ stats, analytics }) => {
               <LineChart data={analytics.visitorData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(0, 255, 255, 0.1)"
+                  stroke="rgba(0, 255, 102, 0.1)"
                 />
                 <XAxis dataKey="date" stroke="#A0A0B0" fontSize={12} />
                 <YAxis stroke="#A0A0B0" fontSize={12} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#1A1A2E",
-                    border: "1px solid rgba(0, 255, 255, 0.2)",
+                    border: "1px solid rgba(0, 255, 102, 0.2)",
                     borderRadius: "8px",
                     color: "#E0E0E0",
                   }}
@@ -135,9 +135,9 @@ const DashboardOverview = ({ stats, analytics }) => {
                 <Line
                   type="monotone"
                   dataKey="visitors"
-                  stroke="#00FFFF"
+                  stroke="#00ff66"
                   strokeWidth={2}
-                  dot={{ fill: "#00FFFF", strokeWidth: 2 }}
+                  dot={{ fill: "#00ff66", strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -157,14 +157,14 @@ const DashboardOverview = ({ stats, analytics }) => {
               <BarChart data={analytics.contentData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(0, 255, 255, 0.1)"
+                  stroke="rgba(0, 255, 102, 0.1)"
                 />
                 <XAxis dataKey="type" stroke="#A0A0B0" fontSize={12} />
                 <YAxis stroke="#A0A0B0" fontSize={12} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#1A1A2E",
-                    border: "1px solid rgba(0, 255, 255, 0.2)",
+                    border: "1px solid rgba(0, 255, 102, 0.2)",
                     borderRadius: "8px",
                     color: "#E0E0E0",
                   }}
@@ -250,7 +250,7 @@ const DashboardOverview = ({ stats, analytics }) => {
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#1A1A2E",
-                    border: "1px solid rgba(0, 255, 255, 0.2)",
+                    border: "1px solid rgba(0, 255, 102, 0.2)",
                     borderRadius: "8px",
                     color: "#E0E0E0",
                   }}

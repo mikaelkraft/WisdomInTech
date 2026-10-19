@@ -9,7 +9,7 @@ const ThemeControls = ({ isOpen, onClose, currentTheme, onThemeChange, fontSize,
       name: 'Cyberpunk', 
       icon: 'Zap',
       description: 'Neon-lit digital future',
-      colors: ['#00FFFF', '#FF0080', '#39FF14']
+      colors: ['#00ff66', '#FF0080', '#39FF14']
     },
     {
       id: 'dark',

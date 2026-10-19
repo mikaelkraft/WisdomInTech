@@ -18,39 +18,6 @@ export function AuthProvider({ children }) {
         setLoading(true);
         setAuthError(null);
 
-        // Dev-only admin bootstrap: if dev_admin flag is present, synthesize admin user/profile
-        try {
-          const isDev =
-            typeof import.meta !== "undefined" &&
-            import.meta &&
-            import.meta.env &&
-            import.meta.env.DEV;
-          if (
-            isDev &&
-            typeof window !== "undefined" &&
-            window.localStorage.getItem("dev_admin") === "true"
-          ) {
-            const email =
-              window.localStorage.getItem("dev_admin_email") ||
-              "admin@local.dev";
-            const syntheticUser = { id: "dev-admin", email };
-            const syntheticProfile = {
-              id: "dev-admin",
-              email,
-              full_name: "Dev Admin",
-              role: "admin",
-            };
-            if (isMounted) {
-              setUser(syntheticUser);
-              setUserProfile(syntheticProfile);
-              setLoading(false);
-              return; // Skip Supabase check
-            }
-          }
-        } catch {
-          // ignore dev bootstrap errors
-        }
-
         const sessionResult = await authService.getSession();
 
         if (
