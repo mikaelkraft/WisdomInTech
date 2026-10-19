@@ -217,11 +217,6 @@ const HeaderNavigation = ({
                   Admin Login
                 </Button>
               )}
-              {isDevAdmin && (
-                <span className="ml-2 text-xs px-2 py-1 rounded-full border border-yellow-400/40 text-yellow-300 bg-yellow-500/10">
-                  Dev OTP
-                </span>
-              )}
             </div>
 
             {/* Mobile Menu Button */}
