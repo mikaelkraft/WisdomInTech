@@ -45,14 +45,14 @@ const SearchHeader = ({
   const currentSort = sortOptions.find(option => option.value === sortBy) || sortOptions[0];
 
   return (
-    <div className="bg-surface border-b border-border-accent/20 sticky top-0 z-30 backdrop-blur-md">
+    <div className="bg-surface border-b border-border-accent/20 sticky top-16 lg:top-18 z-30 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-4">
           {/* Left Section - Title and Stats */}
           <div className="flex items-center space-x-4">
             <div>
               <h1 className="font-heading font-bold text-2xl text-text-primary">
-                Blog Hub
+                Blog
               </h1>
               <p className="text-text-secondary text-sm font-caption">
                 {loading ? (

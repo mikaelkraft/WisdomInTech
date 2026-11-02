@@ -48,20 +48,20 @@ const Button = React.forwardRef(
 
     // Variant classes
     const variantClasses = {
-      primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+      primary: "bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:ring-primary shadow-glow-primary",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
       success:
-        "bg-success text-white hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
+        "bg-success text-success-foreground font-semibold hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
       danger:
         "bg-error text-white hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
       warning:
-        "bg-warning text-primary-foreground hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
-      info: "bg-accent text-white hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
+        "bg-warning text-primary-foreground font-semibold hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
+      info: "bg-accent text-accent-foreground font-semibold hover:bg-opacity-90 active:bg-opacity-100 disabled:opacity-50",
       ghost: "hover:bg-primary hover:text-primary-foreground",
-      link: "bg-transparent text-primary-foreground underline hover:text-primary-600 p-0",
+      link: "bg-transparent text-primary underline hover:text-primary/80 p-0",
       outline:
-        "border border-input bg-background hover:bg-primary hover:text-primary-foreground",
-      text: "bg-transparent text-primary-foreground hover:bg-surface hover:bg-opacity-50 active:bg-surface active:bg-opacity-70",
+        "border border-primary/40 text-text-primary bg-background hover:bg-primary hover:text-primary-foreground",
+      text: "bg-transparent text-text-primary hover:bg-surface hover:bg-opacity-50 active:bg-surface active:bg-opacity-70",
     };
 
     // Width classes

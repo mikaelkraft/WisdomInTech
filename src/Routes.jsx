@@ -1,4 +1,4 @@
-import { Routes as RouterRoutes, Route } from "react-router-dom";
+import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import PortfolioHomeHero from "./pages/portfolio-home-hero";
@@ -20,39 +20,61 @@ const Routes = () => {
     <ErrorBoundary>
       <ScrollToTop />
       <RouterRoutes>
-          {/* Define your routes here */}
-          <Route path="/" element={<PortfolioHomeHero />} />
-          <Route path="/portfolio-home-hero" element={<PortfolioHomeHero />} />
-          <Route
-            path="/projects-portfolio-grid"
-            element={<ProjectsPortfolioGrid />}
-          />
-          <Route path="/project/:id" element={<ProjectDetail />} />
-          <Route path="/blog-content-hub" element={<BlogContentHub />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/search" element={<SearchResultsPage />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/admin-dashboard-content-management"
-            element={
-              <RequireAdmin>
-                <AdminDashboardContentManagement />
-              </RequireAdmin>
-            }
-          />
-          {/* MediaLibrary route disabled until component confirmed */}
-          <Route
-            path="/admin/feature-flags"
-            element={
-              <RequireAdmin>
-                <FeatureFlagsPage />
-              </RequireAdmin>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </RouterRoutes>
-      </ErrorBoundary>
+        <Route path="/" element={<PortfolioHomeHero />} />
+        <Route path="/portfolio-home-hero" element={<PortfolioHomeHero />} />
+        <Route
+          path="/projects-portfolio-grid"
+          element={<ProjectsPortfolioGrid />}
+        />
+        <Route path="/projects" element={<ProjectsPortfolioGrid />} />
+        <Route path="/project/:id" element={<ProjectDetail />} />
+        
+        {/* Blog routes */}
+        <Route path="/blog" element={<BlogContentHub />} />
+        <Route path="/blog-content-hub" element={<Navigate to="/blog" replace />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        
+        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        
+        {/* Admin routes */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminDashboardContentManagement />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin-dashboard-content-management"
+          element={
+            <RequireAdmin>
+              <AdminDashboardContentManagement />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <RequireAdmin>
+              <AdminDashboardContentManagement />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/feature-flags"
+          element={
+            <RequireAdmin>
+              <FeatureFlagsPage />
+            </RequireAdmin>
+          }
+        />
+        
+        <Route path="*" element={<NotFound />} />
+      </RouterRoutes>
+    </ErrorBoundary>
   );
 };
 

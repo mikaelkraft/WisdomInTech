@@ -40,6 +40,12 @@ class SlideService {
   // Get all slides (admin access)
   async getAllSlides() {
     try {
+      if (USE_API) {
+        try {
+          const data = await api.get("/slides");
+          return { success: true, data: Array.isArray(data) ? data : [] };
+        } catch {}
+      }
       const { data, error } = await supabase
         .from("hero_slides")
         .select("*")

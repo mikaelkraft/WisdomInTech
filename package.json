@@ -47,7 +47,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "vite build --sourcemap",
+    "build": "vite build",
     "serve": "vite preview",
     "api": "node server.js",
     "migrate": "node scripts/migrate.js",

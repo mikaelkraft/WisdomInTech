@@ -19,6 +19,7 @@ class AuthService {
       return false;
     }
   }
+
   // Sign in with email and password
   async signIn(email, password) {
     try {
@@ -29,12 +30,33 @@ class AuthService {
           error: "Access denied. This portal is for the admin only.",
         };
       }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        // Dev fallback if in dev environment and password matches or if dev mode
+        if (
+          this.isDevEnv() &&
+          (password === "admin123" || password === "admin" || password === "cyberkraft")
+        ) {
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("dev_admin", "true");
+            window.localStorage.setItem("dev_admin_email", email);
+          }
+          return {
+            success: true,
+            data: {
+              user: {
+                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+                email: ADMIN_EMAIL,
+                role: "admin",
+              },
+            },
+          };
+        }
         return { success: false, error: error.message };
       }
 
@@ -47,6 +69,25 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
+      if (
+        this.isDevEnv() &&
+        (password === "admin123" || password === "admin" || password === "cyberkraft")
+      ) {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("dev_admin", "true");
+          window.localStorage.setItem("dev_admin_email", email);
+        }
+        return {
+          success: true,
+          data: {
+            user: {
+              id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+              email: ADMIN_EMAIL,
+              role: "admin",
+            },
+          },
+        };
+      }
       if (
         error?.message?.includes("Failed to fetch") ||
         error?.message?.includes("AuthRetryableFetchError")
@@ -103,7 +144,6 @@ class AuthService {
 
   // Sign up new user
   async signUp(_email, _password) {
-    // Public signup is intentionally disabled; keep simple deterministic response
     return {
       success: false,
       error: "Signup is disabled. Please contact the site owner.",
@@ -114,10 +154,6 @@ class AuthService {
   async signOut() {
     try {
       const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
 
       // Dev-only cleanup
       try {
@@ -130,8 +166,19 @@ class AuthService {
         // ignore dev cleanup errors
       }
 
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
       return { success: true };
     } catch (error) {
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("dev_admin");
+          window.localStorage.removeItem("dev_admin_email");
+          window.localStorage.removeItem("dev_admin_code");
+        }
+      } catch {}
       if (
         error?.message?.includes("Failed to fetch") ||
         error?.message?.includes("NetworkError") ||
@@ -214,16 +261,13 @@ class AuthService {
         error?.message?.includes("Failed to fetch") ||
         error?.message?.includes("AuthRetryableFetchError")
       ) {
-        // Clear dev admin flag then return error (previous code had unreachable cleanup)
         try {
           if (typeof window !== "undefined") {
             window.localStorage.removeItem("dev_admin");
             window.localStorage.removeItem("dev_admin_email");
             window.localStorage.removeItem("dev_admin_code");
           }
-        } catch {
-          // ignore cleanup errors
-        }
+        } catch {}
         return {
           success: false,
           error:
@@ -264,6 +308,23 @@ class AuthService {
   // Get current session
   async getSession() {
     try {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return {
+          success: true,
+          data: {
+            session: {
+              user: {
+                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+                email: ADMIN_EMAIL,
+              },
+            },
+          },
+        };
+      }
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
@@ -272,6 +333,23 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return {
+          success: true,
+          data: {
+            session: {
+              user: {
+                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+                email: ADMIN_EMAIL,
+              },
+            },
+          },
+        };
+      }
       if (
         error?.message?.includes("Failed to fetch") ||
         error?.message?.includes("NetworkError") ||
@@ -290,6 +368,21 @@ class AuthService {
   // Get user profile
   async getUserProfile(userId) {
     try {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return {
+          success: true,
+          data: {
+            id: userId || "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+            email: ADMIN_EMAIL,
+            full_name: "Wisdom Ekeoma (Admin)",
+            role: "admin",
+          },
+        };
+      }
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
@@ -302,6 +395,21 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return {
+          success: true,
+          data: {
+            id: userId || "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+            email: ADMIN_EMAIL,
+            full_name: "Wisdom Ekeoma (Admin)",
+            role: "admin",
+          },
+        };
+      }
       if (
         error?.message?.includes("Failed to fetch") ||
         error?.message?.includes("NetworkError") ||
@@ -386,12 +494,24 @@ class AuthService {
   // Check if user is admin
   async isAdmin() {
     try {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return true;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
         return false;
+      }
+
+      if (user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        return true;
       }
 
       const { data, error } = await supabase
@@ -406,6 +526,13 @@ class AuthService {
 
       return data.role === "admin";
     } catch {
+      if (
+        this.isDevEnv() &&
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("dev_admin") === "true"
+      ) {
+        return true;
+      }
       return false;
     }
   }

@@ -20,37 +20,52 @@ const HeaderNavigation = ({
   const location = useLocation();
   const { userProfile, signOut } = useAuth();
   const isAdmin = userProfile?.role === "admin";
+  const isDevAdmin =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("dev_admin") === "true";
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const navigationItems = [
     {
       label: "Home",
-      path: "/portfolio-home-hero",
+      path: "/",
       icon: "Home",
-      tooltip: "Portfolio home and hero showcase",
+      tooltip: "Portfolio home",
     },
     {
       label: "Projects",
-      path: "/projects-portfolio-grid",
+      path: "/projects",
       icon: "FolderOpen",
-      tooltip: "Browse project portfolio",
+      tooltip: "Browse projects",
     },
     {
       label: "Blog",
-      path: "/blog-content-hub",
+      path: "/blog",
       icon: "BookOpen",
-      tooltip: "Read latest blog posts",
+      tooltip: "Read blog posts",
     },
     {
-      label: "Dashboard",
-      path: "/admin-dashboard-content-management",
+      label: "Admin",
+      path: "/admin",
       icon: "Settings",
-      tooltip: "Admin content management",
+      tooltip: "Admin dashboard",
       adminOnly: true,
     },
   ];
 
   const isActivePath = (path) => {
+    if (path === "/" && (location.pathname === "/" || location.pathname === "/portfolio-home-hero")) {
+      return true;
+    }
+    if (path === "/projects" && (location.pathname === "/projects" || location.pathname === "/projects-portfolio-grid")) {
+      return true;
+    }
+    if (path === "/blog" && (location.pathname === "/blog" || location.pathname === "/blog-content-hub")) {
+      return true;
+    }
+    if (path === "/admin" && (location.pathname === "/admin" || location.pathname === "/admin-dashboard-content-management")) {
+      return true;
+    }
     return location.pathname === path;
   };
 
@@ -88,7 +103,7 @@ const HeaderNavigation = ({
     };
   }, [isMobileMenuOpen]);
 
-  const filteredNavItems = navigationItems; // always show
+  const filteredNavItems = navigationItems;
 
   return (
     <>
@@ -97,7 +112,7 @@ const HeaderNavigation = ({
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
             <Link
-              to="/portfolio-home-hero"
+              to="/"
               className="flex items-center space-x-3 group"
               aria-label="WisdomInTech Portfolio Home"
             >
@@ -124,7 +139,7 @@ const HeaderNavigation = ({
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin) {
+                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                     }
@@ -194,7 +209,7 @@ const HeaderNavigation = ({
                   title="Open theme controls"
                 />
               )}
-              {isAdmin ? (
+              {isAdmin || isDevAdmin ? (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -219,7 +234,7 @@ const HeaderNavigation = ({
               )}
               {isDevAdmin && (
                 <span className="ml-2 text-xs px-2 py-1 rounded-full border border-yellow-400/40 text-yellow-300 bg-yellow-500/10">
-                  Dev OTP
+                  Dev Mode
                 </span>
               )}
             </div>
@@ -244,7 +259,7 @@ const HeaderNavigation = ({
                   title="Open theme controls"
                 />
               )}
-              {isAdmin ? (
+              {isAdmin || isDevAdmin ? (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -299,7 +314,7 @@ const HeaderNavigation = ({
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin) {
+                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                       return;
@@ -359,14 +374,15 @@ const HeaderNavigation = ({
         defaultMode="login"
       />
 
-      {/* Floating Admin badge */}
-      {!isAdmin && (
+      {/* Floating Admin button if not logged in */}
+      {!isAdmin && !isDevAdmin && (
         <button
           onClick={() => setAuthModalOpen(true)}
-          className="fixed bottom-6 left-6 z-50 px-3 py-1.5 rounded-full bg-surface border border-border-accent/40 text-xs text-text-secondary hover:text-text-primary hover:border-primary/60 shadow backdrop-blur-sm"
-          title="Admin? Click to login"
+          className="fixed bottom-6 left-6 z-40 px-3 py-1.5 rounded-full bg-surface/90 backdrop-blur border border-primary/30 text-xs text-text-secondary hover:text-primary hover:border-primary transition shadow-glow-primary flex items-center space-x-1.5"
+          title="Open admin login"
         >
-          Admin?
+          <Icon name="Lock" size={12} className="text-primary" />
+          <span>Admin</span>
         </button>
       )}
     </>

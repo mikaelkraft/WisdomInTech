@@ -94,7 +94,7 @@ const FeaturedBlogPosts = ({ currentTheme }) => {
           {/* Section Header */}
           <div className="text-center mb-12">
             <h2 className={`text-4xl font-heading font-bold ${themeClasses.text} mb-4`}>
-              Featured Insights
+              Blog
             </h2>
             <p className={`text-lg ${themeClasses.text} opacity-80 max-w-2xl mx-auto`}>
               Latest thoughts on technology, development, and cybersecurity from the blog
@@ -113,7 +113,7 @@ const FeaturedBlogPosts = ({ currentTheme }) => {
               Featured blog posts will appear here once you publish and feature blog posts in the admin dashboard.
             </p>
             <Link
-              to="/blog-content-hub"
+              to="/blog"
               className={`inline-flex items-center px-6 py-3 ${themeClasses.cardBg} border rounded-lg font-medium transition-all duration-fast hover:scale-105 hover-glow-primary group`}
             >
               <span className={themeClasses.text}>Visit Blog</span>
@@ -135,7 +135,7 @@ const FeaturedBlogPosts = ({ currentTheme }) => {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className={`text-4xl font-heading font-bold ${themeClasses.text} mb-4`}>
-            Featured Insights
+            Blog
           </h2>
           <p className={`text-lg ${themeClasses.text} opacity-80 max-w-2xl mx-auto`}>
             Latest thoughts on technology, development, and cybersecurity from the blog
@@ -144,10 +144,10 @@ const FeaturedBlogPosts = ({ currentTheme }) => {
 
         {/* Featured Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredPosts.map((post, index) => (
+          {featuredPosts.map((post) => (
             <Link
               key={post.id}
-              to={`/blog-content-hub/${post.slug}`}
+              to={`/blog/${post.slug}`}
               className={`group block ${themeClasses.cardBg} border rounded-lg overflow-hidden hover:border-opacity-50 transition-all duration-fast hover:scale-105 hover-glow-primary`}
             >
               {/* Post Image */}
@@ -220,7 +220,7 @@ const FeaturedBlogPosts = ({ currentTheme }) => {
         {/* View All Blog Posts Button */}
         <div className="text-center">
           <Link
-            to="/blog-content-hub"
+            to="/blog"
             className={`inline-flex items-center px-8 py-4 ${themeClasses.cardBg} border rounded-lg font-medium transition-all duration-fast hover:scale-105 hover-glow-primary group`}
           >
             <span className={themeClasses.text}>View All Blog Posts</span>

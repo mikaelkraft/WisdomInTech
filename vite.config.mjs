@@ -4,12 +4,16 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { inspectorServer } from "@react-dev-inspector/vite-plugin";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: '/',
   build: {
     chunkSizeWarningLimit: 2000,
   },
-  plugins: [tsconfigPaths(), react(), inspectorServer()],
+  plugins: [
+    tsconfigPaths(),
+    react(),
+    command === 'serve' ? inspectorServer() : null
+  ].filter(Boolean),
   server: {
     port: "4028",
     host: "0.0.0.0",
@@ -23,4 +27,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));

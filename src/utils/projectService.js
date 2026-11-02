@@ -47,6 +47,12 @@ class ProjectService {
   // Get all projects (admin access)
   async getAllProjects() {
     try {
+      if (USE_API) {
+        try {
+          const data = await api.get("/projects");
+          return { success: true, data: Array.isArray(data) ? data : [] };
+        } catch {}
+      }
       const { data, error } = await supabase
         .from("projects")
         .select(

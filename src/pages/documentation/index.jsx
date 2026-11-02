@@ -569,7 +569,7 @@ const ProjectsList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col justify-between pt-20">
       <Helmet>
         <title>Documentation - WisdomInTech Portfolio</title>
         <meta
@@ -580,7 +580,7 @@ const ProjectsList = () => {
 
       <HeaderNavigation currentTheme={currentTheme} />
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Navigation */}
           <div className="lg:w-64 flex-shrink-0">

@@ -169,7 +169,16 @@ const HeroSection = ({ currentTheme }) => {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-          <button className={`
+          <button
+            onClick={() => {
+              const el = document.getElementById('projects');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.location.href = '/projects';
+              }
+            }}
+            className={`
             px-8 py-4 rounded-lg font-medium text-lg transition-all duration-fast
             ${currentTheme === 'light' ?'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl' :'bg-primary text-background hover:bg-primary/90 glow-primary hover:shadow-glow-primary'
             }

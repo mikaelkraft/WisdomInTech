@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "../../contexts/AuthContext";
 import HeaderNavigation from "../../components/ui/HeaderNavigation";
+import DynamicFooter from "../../components/ui/DynamicFooter";
 import SearchHeader from "./components/SearchHeader";
 import BlogGrid from "./components/BlogGrid";
 import BlogModal from "./components/BlogModal";
@@ -288,7 +289,7 @@ const BlogContentHub = () => {
   const displayedPosts = filteredAndSortedPosts();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16 lg:pt-18 flex flex-col justify-between">
       <Helmet>
         <title>Mikael Kraft — Blog</title>
         <meta
@@ -323,7 +324,7 @@ const BlogContentHub = () => {
       />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         {/* Error Message */}
         {error && (
           <div className="mb-8 p-4 bg-error/10 border border-error/20 rounded-lg">
@@ -510,7 +511,8 @@ const BlogContentHub = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-surface border-t border-border-accent/20 mt-16">
+      <DynamicFooter />
+      {false && <footer className="bg-surface border-t border-border-accent/20 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -524,7 +526,7 @@ const BlogContentHub = () => {
             </p>
           </div>
         </div>
-      </footer>
+      </footer>}
     </div>
   );
 };

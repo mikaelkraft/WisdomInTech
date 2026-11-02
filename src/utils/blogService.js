@@ -119,6 +119,24 @@ class BlogService {
   // Get all blog posts (admin access)
   async getAllPosts() {
     try {
+      if (USE_API) {
+        try {
+          const token = (await supabase.auth.getSession()).data.session?.access_token;
+          const res = await fetch(
+            (import.meta.env.VITE_API_BASE_URL || "/api") + "/blog",
+            {
+              headers: {
+                accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+            },
+          );
+          if (res.ok) {
+            const data = await res.json();
+            return { success: true, data: Array.isArray(data) ? data : [] };
+          }
+        } catch {}
+      }
       const { data, error } = await supabase
         .from("blog_posts")
         .select(

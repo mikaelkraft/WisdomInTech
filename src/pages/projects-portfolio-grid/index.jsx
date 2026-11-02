@@ -8,6 +8,8 @@ import ProjectModal from "./components/ProjectModal";
 import ProjectForm from "./components/ProjectForm";
 import ProjectSkeleton from "./components/ProjectSkeleton";
 import projectService from "../../utils/projectService";
+import HeaderNavigation from "../../components/ui/HeaderNavigation";
+import DynamicFooter from "../../components/ui/DynamicFooter";
 
 const ProjectsPortfolioGrid = () => {
   const [projects, setProjects] = useState([]);
@@ -22,7 +24,7 @@ const ProjectsPortfolioGrid = () => {
   const [editingProject, setEditingProject] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load projects from Supabase
+  // Load projects from Supabase / API
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -195,25 +197,27 @@ const ProjectsPortfolioGrid = () => {
         <link rel="canonical" href="https://mkraft.tech/projects" />
       </Helmet>
 
-      <div className="min-h-screen bg-background pt-20 pb-16">
-        <div className="max-w-9xl mx-auto px-6 lg:px-8">
+      <HeaderNavigation />
+
+      <div className="min-h-screen bg-background flex flex-col justify-between pt-24">
+        <div className="max-w-9xl mx-auto px-6 lg:px-8 flex-grow w-full">
           {/* Page Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6">
               <Icon name="FolderOpen" size={18} className="text-primary" />
               <span className="text-primary font-caption text-sm">
-                Portfolio Showcase
+                Projects
               </span>
             </div>
 
             <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl text-text-primary mb-6">
-              Project <span className="text-primary">Portfolio</span>
+              Projects
             </h1>
 
             <p className="text-text-secondary text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
               Explore my collection of innovative projects spanning web
               development, blockchain technology, machine learning, and
-              cyberpunk-themed applications. Each project represents a unique
+              themed applications. Each project represents a unique
               challenge and creative solution.
             </p>
           </div>
@@ -236,13 +240,13 @@ const ProjectsPortfolioGrid = () => {
 
           {/* Projects Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, index) => (
                 <ProjectSkeleton key={index} />
               ))}
             </div>
           ) : filteredProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (
                 <ProjectCard
                   key={project.id}
@@ -311,6 +315,8 @@ const ProjectsPortfolioGrid = () => {
           }}
           onSave={handleSaveProject}
         />
+
+        <DynamicFooter />
       </div>
     </>
   );

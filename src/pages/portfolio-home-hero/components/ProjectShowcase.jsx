@@ -36,7 +36,8 @@ const ProjectShowcase = ({ currentTheme }) => {
           text: 'text-purple-100',
           secondary: 'text-purple-300',
           accent: 'text-purple-400',
-          button: 'bg-purple-600 hover:bg-purple-700',
+          button: 'bg-purple-600 hover:bg-purple-700 text-white font-medium',
+          badge: 'bg-purple-500/20 text-purple-300',
           filter: 'hover:bg-purple-500/20'
         };
       case 'futuristic':
@@ -46,7 +47,8 @@ const ProjectShowcase = ({ currentTheme }) => {
           text: 'text-slate-100',
           secondary: 'text-slate-300',
           accent: 'text-blue-400',
-          button: 'bg-blue-600 hover:bg-blue-700',
+          button: 'bg-blue-600 hover:bg-blue-700 text-white font-medium',
+          badge: 'bg-blue-500/20 text-blue-300',
           filter: 'hover:bg-blue-500/20'
         };
       case 'light':
@@ -56,7 +58,8 @@ const ProjectShowcase = ({ currentTheme }) => {
           text: 'text-gray-900',
           secondary: 'text-gray-600',
           accent: 'text-blue-600',
-          button: 'bg-blue-600 hover:bg-blue-700',
+          button: 'bg-blue-600 hover:bg-blue-700 text-white font-medium',
+          badge: 'bg-blue-500/20 text-blue-300',
           filter: 'hover:bg-gray-100'
         };
       default: // cyberpunk
@@ -66,7 +69,8 @@ const ProjectShowcase = ({ currentTheme }) => {
           text: 'text-text-primary',
           secondary: 'text-text-secondary',
           accent: 'text-primary',
-          button: 'bg-primary hover:bg-primary/90',
+          button: 'bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-glow-primary',
+          badge: 'bg-primary/20 text-primary',
           filter: 'hover:bg-primary/20'
         };
     }
@@ -106,7 +110,7 @@ const ProjectShowcase = ({ currentTheme }) => {
               <h3 className={`font-heading font-semibold text-lg ${themeClasses.text} group-hover:${themeClasses.accent} transition-colors`}>
                 {project.title}
               </h3>
-              <div className={`p-2 rounded-lg ${themeClasses.button} text-white`}>
+              <div className={`p-2 rounded-lg ${themeClasses.button}`}>
                 <Icon name={getProjectTypeIcon(project.type)} size={20} />
               </div>
             </div>
@@ -123,7 +127,7 @@ const ProjectShowcase = ({ currentTheme }) => {
               </div>
             )}
             <div className="flex items-center justify-between">
-              <span className={`text-xs px-2 py-1 rounded-full bg-${themeClasses.accent}/20 ${themeClasses.accent}`}>
+              <span className={`text-xs px-2 py-1 rounded-full ${themeClasses.badge}`}>
                 {project.category || 'Design'}
               </span>
               <span className={`text-xs ${themeClasses.secondary}`}>
@@ -161,7 +165,7 @@ const ProjectShowcase = ({ currentTheme }) => {
               </div>
             )}
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className={`p-3 rounded-full ${themeClasses.button} text-white`}>
+              <div className={`p-3 rounded-full ${themeClasses.button}`}>
                 <Icon name="Play" size={24} />
               </div>
             </div>
@@ -212,7 +216,7 @@ const ProjectShowcase = ({ currentTheme }) => {
 
   if (loading) {
     return (
-      <section className={`py-20 px-6 ${themeClasses.bg}`}>
+      <section id="projects" className={`py-20 px-6 ${themeClasses.bg}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="animate-pulse">
@@ -220,7 +224,7 @@ const ProjectShowcase = ({ currentTheme }) => {
               <div className="h-4 bg-surface/10 rounded w-96 mx-auto"></div>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className={`${themeClasses.card} rounded-xl border-2 overflow-hidden animate-pulse`}>
                 <div className="aspect-video bg-surface/20"></div>
@@ -238,11 +242,11 @@ const ProjectShowcase = ({ currentTheme }) => {
 
   if (projects.length === 0) {
     return (
-      <section className={`py-20 px-6 ${themeClasses.bg}`}>
+      <section id="projects" className={`py-20 px-6 ${themeClasses.bg}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className={`font-heading text-3xl lg:text-4xl font-bold mb-4 ${themeClasses.text}`}>
-              Project Showcase
+              Projects
             </h2>
             <p className={`text-lg max-w-2xl mx-auto ${themeClasses.secondary}`}>
               Video projects, image galleries, and logo designs will appear here once you create them
@@ -266,12 +270,12 @@ const ProjectShowcase = ({ currentTheme }) => {
 
   return (
     <>
-      <section className={`py-20 px-6 ${themeClasses.bg}`}>
+      <section id="projects" className={`py-20 px-6 ${themeClasses.bg}`}>
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className={`font-heading text-3xl lg:text-4xl font-bold mb-4 ${themeClasses.text}`}>
-              Project Showcase
+              Projects
             </h2>
             <p className={`text-lg max-w-2xl mx-auto ${themeClasses.secondary}`}>
               Explore my diverse portfolio including video projects, image galleries, and logo designs
@@ -291,7 +295,7 @@ const ProjectShowcase = ({ currentTheme }) => {
                 onClick={() => setActiveFilter(filter.key)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg border-2 transition-all duration-300 ${
                   activeFilter === filter.key
-                    ? `${themeClasses.button} text-white border-transparent`
+                    ? `${themeClasses.button} border-transparent`
                     : `${themeClasses.card} ${themeClasses.text} ${themeClasses.filter}`
                 }`}
               >
@@ -300,8 +304,8 @@ const ProjectShowcase = ({ currentTheme }) => {
                 {filter.key !== 'all' && (
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     activeFilter === filter.key 
-                      ? 'bg-white/20' 
-                      : `bg-${themeClasses.accent}/20 ${themeClasses.accent}`
+                      ? 'bg-black/20 text-current' 
+                      : themeClasses.badge
                   }`}>
                     {filterProjects(filter.key).length}
                   </span>
@@ -312,7 +316,7 @@ const ProjectShowcase = ({ currentTheme }) => {
 
           {/* Projects Grid */}
           {filteredProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project, index) => renderProject(project, index))}
             </div>
           ) : (
@@ -464,7 +468,7 @@ const ProjectShowcase = ({ currentTheme }) => {
                 </div>
                 <button
                   onClick={() => setSelectedProject(null)}
-                  className={`px-6 py-2 rounded-lg ${themeClasses.button} text-white font-medium hover:scale-105 transition-transform`}
+                  className={`px-6 py-2 rounded-lg ${themeClasses.button} font-medium hover:scale-105 transition-transform`}
                 >
                   Close
                 </button>

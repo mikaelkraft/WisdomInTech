@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import authService from "../utils/authService";
+import authService, { ADMIN_EMAIL } from "../utils/authService";
 
 const AuthContext = createContext();
 
@@ -34,7 +34,11 @@ export function AuthProvider({ children }) {
           if (profileResult?.success && isMounted) {
             setUserProfile(profileResult.data);
           } else if (isMounted) {
-            setAuthError(profileResult?.error || "Failed to load user profile");
+            setUserProfile({
+              id: authUser.id,
+              email: authUser.email,
+              role: authUser.email === ADMIN_EMAIL ? "admin" : "viewer",
+            });
           }
         }
       } catch (error) {
@@ -68,7 +72,11 @@ export function AuthProvider({ children }) {
               if (profileResult?.success && isMounted) {
                 setUserProfile(profileResult.data);
               } else if (isMounted) {
-                setAuthError(profileResult?.error || "Failed to load user profile");
+                setUserProfile({
+                  id: session.user.id,
+                  email: session.user.email,
+                  role: session.user.email === ADMIN_EMAIL ? "admin" : "viewer",
+                });
               }
             });
           } else if (event === "SIGNED_OUT") {
@@ -101,6 +109,20 @@ export function AuthProvider({ children }) {
         return { success: false, error: result?.error };
       }
 
+      if (result.data?.user) {
+        setUser(result.data.user);
+        const profile = await authService.getUserProfile(result.data.user.id);
+        if (profile?.success && profile?.data) {
+          setUserProfile(profile.data);
+        } else {
+          setUserProfile({
+            id: result.data.user.id,
+            email: result.data.user.email,
+            role: "admin",
+          });
+        }
+      }
+
       return { success: true, data: result.data };
     } catch (error) {
       const errorMsg = "Something went wrong during login. Please try again.";
@@ -109,8 +131,6 @@ export function AuthProvider({ children }) {
       return { success: false, error: errorMsg };
     }
   };
-
-  // OTP flow removed for production; dev fallback remains in authService for local testing only
 
   // Sign up function
   const signUp = async (email, password, userData = {}) => {
@@ -157,6 +177,8 @@ export function AuthProvider({ children }) {
   const signOut = async () => {
     try {
       setAuthError(null);
+      setUser(null);
+      setUserProfile(null);
       const result = await authService.signOut();
 
       if (!result?.success) {
@@ -166,6 +188,8 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (error) {
+      setUser(null);
+      setUserProfile(null);
       const errorMsg = "Something went wrong during logout. Please try again.";
       setAuthError(errorMsg);
       console.error("Sign out error:", error);

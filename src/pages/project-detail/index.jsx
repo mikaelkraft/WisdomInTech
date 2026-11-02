@@ -50,7 +50,7 @@ const ProjectDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col justify-between pt-20">
         <HeaderNavigation currentTheme={currentTheme} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -65,7 +65,7 @@ const ProjectDetail = () => {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col justify-between pt-20">
         <HeaderNavigation currentTheme={currentTheme} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -79,7 +79,7 @@ const ProjectDetail = () => {
             </h1>
             <p className="text-text-secondary mb-6">{error}</p>
             <Button
-              onClick={() => navigate("/projects-portfolio-grid")}
+              onClick={() => navigate("/projects")}
               variant="primary"
             >
               Back to Projects
@@ -171,16 +171,16 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col justify-between pt-20">
       {/* Title & description meta handled centrally (OGMeta) */}
 
       <HeaderNavigation currentTheme={currentTheme} />
 
-      <main className="max-w-6xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-6 py-8 flex-grow w-full">
         {/* Back button */}
         <div className="mb-8">
           <Button
-            onClick={() => navigate("/projects-portfolio-grid")}
+            onClick={() => navigate("/projects")}
             variant="ghost"
             iconName="ArrowLeft"
             iconPosition="left"

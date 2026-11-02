@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import blogService from "utils/blogService";
 import HeaderNavigation from "../../components/ui/HeaderNavigation.jsx";
+import DynamicFooter from "../../components/ui/DynamicFooter.jsx";
 import OGMeta from "../../components/seo/OGMeta.jsx";
 import Icon from "../../components/AppIcon.jsx";
 import RoleBadge from "../../components/ui/RoleBadge.jsx";
@@ -44,19 +45,31 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col justify-between pt-24">
         <HeaderNavigation />
-        <div className="max-w-3xl mx-auto p-6">Loading...</div>
+        <div className="max-w-3xl mx-auto p-6 flex-grow flex items-center justify-center">
+          <div className="flex items-center space-x-3 text-text-secondary">
+            <Icon name="Loader2" size={24} className="animate-spin text-primary" />
+            <span>Loading article...</span>
+          </div>
+        </div>
+        <DynamicFooter />
       </div>
     );
   }
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col justify-between pt-24">
         <HeaderNavigation />
-        <div className="max-w-3xl mx-auto p-6 text-error">
-          {error || "Not found"}
+        <div className="max-w-3xl mx-auto p-6 flex-grow flex flex-col items-center justify-center text-center">
+          <Icon name="AlertCircle" size={40} className="text-error mb-4" />
+          <h2 className="text-xl font-bold text-text-primary mb-2">Post Not Found</h2>
+          <p className="text-text-secondary mb-6">{error || "The article you requested could not be found."}</p>
+          <a href="/blog" className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition">
+            Back to Blog
+          </a>
         </div>
+        <DynamicFooter />
       </div>
     );
   }
@@ -65,7 +78,7 @@ const BlogPost = () => {
   const desc = post.excerpt || (post.content || "").slice(0, 140);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col justify-between pt-24">
       <OGMeta
         title={title + " — Blog"}
         description={desc}
@@ -73,7 +86,7 @@ const BlogPost = () => {
       />
       {/* Title + basic meta tags handled by OGMeta & global SEO component */}
       <HeaderNavigation />
-      <main className="max-w-3xl mx-auto p-6">
+      <main className="max-w-3xl mx-auto p-6 flex-grow w-full">
         <article>
           <h1 className="font-heading text-3xl md:text-4xl font-bold mb-4">
             {title}
@@ -199,6 +212,7 @@ const BlogPost = () => {
           </ul>
         </section>
       </main>
+      <DynamicFooter />
     </div>
   );
 };
