@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
 import ProjectCard from "./components/ProjectCard";
@@ -12,6 +13,7 @@ import HeaderNavigation from "../../components/ui/HeaderNavigation";
 import DynamicFooter from "../../components/ui/DynamicFooter";
 
 const ProjectsPortfolioGrid = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -138,8 +140,8 @@ const ProjectsPortfolioGrid = () => {
   };
 
   const handleViewDetails = (project) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
+    // Navigate directly to project detail page — no modal
+    navigate(`/project/${project.id}`);
   };
 
   const handleEditProject = (project) => {

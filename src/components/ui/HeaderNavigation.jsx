@@ -1,137 +1,126 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import useFeature from "hooks/useFeature";
 import Icon from "../AppIcon.jsx";
 import Button from "./Button.jsx";
 import SearchModal from "./SearchModal.jsx";
 import AuthModal from "../auth/AuthModal.jsx";
+import ThemeControls from "../../pages/portfolio-home-hero/components/ThemeControls.jsx";
 
-const HeaderNavigation = ({
-  onThemeControlsToggle,
-  currentTheme = "cyberpunk",
-}) => {
+const HeaderNavigation = ({ onThemeControlsToggle }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [internalThemeModalOpen, setInternalThemeModalOpen] = useState(false);
   const searchEnabled = useFeature("full_text_search", true);
   const [searchVal, setSearchVal] = useState("");
   const searchDebounceRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { userProfile, signOut } = useAuth();
+  const themeCtx = useTheme();
+  const activeTheme = themeCtx?.theme ?? "cyberpunk";
+  const setTheme = themeCtx?.setTheme ?? (() => {});
+  const fontSize = themeCtx?.fontSize ?? "medium";
+  const setFontSize = themeCtx?.setFontSize ?? (() => {});
   const isAdmin = userProfile?.role === "admin";
+  const isDevAdmin =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("dev_admin") === "true";
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  const handleThemeControlsClick = () => {
+    if (onThemeControlsToggle) {
+      onThemeControlsToggle();
+    } else {
+      setInternalThemeModalOpen(true);
+    }
+  };
+
   const navigationItems = [
-    {
-      label: "Home",
-      path: "/portfolio-home-hero",
-      icon: "Home",
-      tooltip: "Portfolio home and hero showcase",
-    },
-    {
-      label: "Projects",
-      path: "/projects-portfolio-grid",
-      icon: "FolderOpen",
-      tooltip: "Browse project portfolio",
-    },
-    {
-      label: "Blog",
-      path: "/blog-content-hub",
-      icon: "BookOpen",
-      tooltip: "Read latest blog posts",
-    },
-    {
-      label: "Dashboard",
-      path: "/admin-dashboard-content-management",
-      icon: "Settings",
-      tooltip: "Admin content management",
-      adminOnly: true,
-    },
+    { label: "Home",     path: "/",        icon: "Home",       tooltip: "Portfolio home" },
+    { label: "Projects", path: "/projects", icon: "FolderOpen", tooltip: "Browse projects" },
+    { label: "Blog",     path: "/blog",     icon: "BookOpen",   tooltip: "Read blog posts" },
+    { label: "Docs",     path: "/docs",     icon: "FileText",   tooltip: "Documentation" },
+    { label: "Admin",    path: "/admin",    icon: "Settings",   tooltip: "Admin dashboard", adminOnly: true },
   ];
 
   const isActivePath = (path) => {
-    return location.pathname === path;
+    const p = location.pathname;
+    if (path === "/" && (p === "/" || p === "/portfolio-home-hero")) return true;
+    if (path === "/projects" && (p === "/projects" || p.startsWith("/project"))) return true;
+    if (path === "/blog" && (p === "/blog" || p.startsWith("/blog/"))) return true;
+    if (path === "/docs" && (p === "/docs" || p === "/documentation")) return true;
+    if (path === "/admin" && (p === "/admin" || p.startsWith("/admin"))) return true;
+    return p === path;
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const toggleMobileMenu = () => setIsMobileMenuOpen((v) => !v);
 
   // Close mobile menu on route change
   useEffect(() => {
     closeMobileMenu();
   }, [location.pathname]);
 
-  // Close mobile menu on escape key
+  // Close on Escape + lock body scroll
   useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") {
-        closeMobileMenu();
-      }
-    };
-
+    const onKey = (e) => { if (e.key === "Escape") closeMobileMenu(); };
     if (isMobileMenuOpen) {
-      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", onKey);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
-  const filteredNavItems = navigationItems; // always show
-
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border-accent/20">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border-accent/20 transition-colors duration-300">
         <nav className="max-w-9xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-18">
+
             {/* Logo */}
             <Link
-              to="/portfolio-home-hero"
+              to="/"
               className="flex items-center space-x-3 group"
               aria-label="WisdomInTech Portfolio Home"
             >
               <div className="relative">
-                <div className="w-8 h-8 bg-gray-800 border border-gray-300 rounded-lg flex items-center justify-center group-hover:shadow-glow-primary transition-all duration-fast">
+                <div className="w-8 h-8 bg-gray-800 border border-gray-300 rounded-lg flex items-center justify-center group-hover:shadow-glow-primary transition-all duration-300">
                   <Icon name="Code" size={20} className="text-white" />
                 </div>
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-fast -z-10"></div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
               </div>
               <div className="hidden sm:block">
-                <span className="font-heading font-bold text-lg text-primary group-hover:text-secondary transition-colors duration-fast">
+                <span className="font-heading font-bold text-lg text-primary group-hover:text-secondary transition-colors duration-300">
                   WisdomInTech
                 </span>
-                <div className="text-xs text-text-secondary font-caption">
-                  Portfolio
-                </div>
+                <div className="text-xs text-text-secondary font-caption">Portfolio</div>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1">
-              {filteredNavItems.map((item) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin) {
+                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                     }
                   }}
                   className={`
-                    relative px-4 py-2 rounded-lg font-medium text-sm transition-all duration-fast
+                    relative px-4 py-2 rounded-lg font-medium text-sm
                     flex items-center space-x-2 min-h-[44px]
+                    transition-all duration-200 active:scale-95
                     ${
                       isActivePath(item.path)
                         ? "text-primary bg-primary/10 shadow-glow-primary"
@@ -143,16 +132,16 @@ const HeaderNavigation = ({
                   <Icon name={item.icon} size={18} />
                   <span>{item.label}</span>
                   {isActivePath(item.path) && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
                   )}
                 </Link>
               ))}
             </div>
 
-            {/* Desktop Search, Auth Toggle and Theme Controls */}
-            <div className="hidden lg:flex items-center space-x-4">
+            {/* Desktop right controls */}
+            <div className="hidden lg:flex items-center space-x-3">
               {searchEnabled && (
-                <div className="relative group">
+                <div className="relative">
                   <input
                     type="text"
                     value={searchVal}
@@ -166,7 +155,7 @@ const HeaderNavigation = ({
                       }, 300);
                     }}
                     placeholder="Search posts…"
-                    className="w-56 px-3 py-2 rounded-lg bg-background/60 border border-border-accent/30 focus:border-primary focus:outline-none text-sm placeholder-text-secondary/50 transition"
+                    className="w-56 px-3 py-2 rounded-lg bg-background/60 border border-border-accent/30 focus:border-primary focus:outline-none text-sm placeholder-text-secondary/50 transition-colors duration-200"
                     aria-label="Search posts"
                   />
                   <Icon
@@ -176,32 +165,34 @@ const HeaderNavigation = ({
                   />
                 </div>
               )}
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSearchModalOpen(true)}
                 iconName="Search"
-                className="p-2"
+                className="p-2 active:scale-95 transition-all duration-200"
                 title="Search portfolio"
               />
-              {onThemeControlsToggle && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onThemeControlsToggle}
-                  iconName="Palette"
-                  className="p-2"
-                  title="Open theme controls"
-                />
-              )}
-              {isAdmin ? (
+
+              {/* Theme palette — always visible on every page */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleThemeControlsClick}
+                iconName="Palette"
+                className="p-2 active:scale-95 transition-all duration-200"
+                title="Change theme"
+              />
+
+              {isAdmin || isDevAdmin ? (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={signOut}
                   iconName="LogOut"
                   iconPosition="left"
-                  className="min-w-[100px]"
+                  className="min-w-[100px] active:scale-95 transition-all duration-200"
                 >
                   Logout
                 </Button>
@@ -212,40 +203,44 @@ const HeaderNavigation = ({
                   onClick={() => setAuthModalOpen(true)}
                   iconName="LogIn"
                   iconPosition="left"
-                  className="min-w-[120px]"
+                  className="min-w-[120px] active:scale-95 transition-all duration-200"
                 >
                   Admin Login
                 </Button>
               )}
+              {isDevAdmin && (
+                <span className="ml-2 text-xs px-2 py-1 rounded-full border border-yellow-400/40 text-yellow-300 bg-yellow-500/10">
+                  Dev OTP
+                </span>
+              )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="lg:hidden flex items-center space-x-2">
+            {/* Mobile right controls */}
+            <div className="lg:hidden flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSearchModalOpen(true)}
                 iconName="Search"
-                className="p-2"
-                title="Search portfolio"
+                className="p-2 active:scale-95 transition-all duration-200"
+                title="Search"
               />
-              {onThemeControlsToggle && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onThemeControlsToggle}
-                  iconName="Palette"
-                  className="p-2"
-                  title="Open theme controls"
-                />
-              )}
-              {isAdmin ? (
+              {/* Theme palette on mobile — always visible */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleThemeControlsClick}
+                iconName="Palette"
+                className="p-2 active:scale-95 transition-all duration-200"
+                title="Change theme"
+              />
+              {isAdmin || isDevAdmin ? (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={signOut}
                   iconName="LogOut"
-                  className="p-2"
+                  className="p-2 active:scale-95 transition-all duration-200"
                   title="Logout"
                 />
               ) : (
@@ -254,7 +249,7 @@ const HeaderNavigation = ({
                   size="sm"
                   onClick={() => setAuthModalOpen(true)}
                   iconName="LogIn"
-                  className="p-2"
+                  className="p-2 active:scale-95 transition-all duration-200"
                   title="Admin Login"
                 />
               )}
@@ -263,7 +258,7 @@ const HeaderNavigation = ({
                 size="sm"
                 onClick={toggleMobileMenu}
                 iconName={isMobileMenuOpen ? "X" : "Menu"}
-                className="p-2"
+                className="p-2 active:scale-95 transition-all duration-200"
                 title="Toggle navigation menu"
               />
             </div>
@@ -274,27 +269,27 @@ const HeaderNavigation = ({
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" onClick={closeMobileMenu}>
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
         </div>
       )}
 
       {/* Mobile Menu Drawer */}
       <div
         className={`
-        fixed top-16 right-0 bottom-0 z-50 w-80 max-w-[85vw] bg-surface border-l border-border-accent/20
-        transform transition-transform duration-normal lg:hidden
-        ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
-      `}
+          fixed top-16 right-0 bottom-0 z-50 w-80 max-w-[85vw] bg-surface border-l border-border-accent/20
+          transform transition-transform duration-300 ease-out lg:hidden
+          ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
+        `}
       >
         <div className="flex flex-col h-full">
           <div className="flex-1 overflow-y-auto py-6">
             <nav className="px-6 space-y-2">
-              {filteredNavItems.map((item) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin) {
+                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                       return;
@@ -303,7 +298,7 @@ const HeaderNavigation = ({
                   }}
                   className={`
                     flex items-center space-x-3 px-4 py-3 rounded-lg font-medium
-                    transition-all duration-fast min-h-[48px]
+                    transition-all duration-200 min-h-[48px] active:scale-95
                     ${
                       isActivePath(item.path)
                         ? "text-primary bg-primary/10 shadow-glow-primary"
@@ -314,12 +309,10 @@ const HeaderNavigation = ({
                   <Icon name={item.icon} size={20} />
                   <div className="flex-1">
                     <div className="font-medium">{item.label}</div>
-                    <div className="text-xs text-text-secondary font-caption">
-                      {item.tooltip}
-                    </div>
+                    <div className="text-xs text-text-secondary font-caption">{item.tooltip}</div>
                   </div>
                   {isActivePath(item.path) && (
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full" />
                   )}
                 </Link>
               ))}
@@ -329,12 +322,8 @@ const HeaderNavigation = ({
           {/* Mobile Menu Footer */}
           <div className="border-t border-border-accent/20 p-6">
             <div className="text-center">
-              <div className="text-sm text-text-secondary font-caption">
-                WisdomInTech
-              </div>
-              <div className="text-xs text-text-secondary/60 mt-1">
-                Neo-Cyberpunk Experience
-              </div>
+              <div className="text-sm text-text-secondary font-caption">WisdomInTech</div>
+              <div className="text-xs text-text-secondary/60 mt-1">Neo-Cyberpunk Experience</div>
             </div>
           </div>
         </div>
@@ -344,7 +333,7 @@ const HeaderNavigation = ({
       <SearchModal
         isOpen={searchModalOpen}
         onClose={() => setSearchModalOpen(false)}
-        currentTheme={currentTheme}
+        currentTheme={activeTheme}
       />
 
       {/* Auth Modal */}
@@ -354,14 +343,25 @@ const HeaderNavigation = ({
         defaultMode="login"
       />
 
-      {/* Floating Admin badge */}
-      {!isAdmin && (
+      {/* Internal Theme Controls (when no parent toggle provided) */}
+      <ThemeControls
+        isOpen={internalThemeModalOpen}
+        onClose={() => setInternalThemeModalOpen(false)}
+        currentTheme={activeTheme}
+        onThemeChange={setTheme}
+        fontSize={fontSize}
+        onFontSizeChange={setFontSize}
+      />
+
+      {/* Floating Admin button when not logged in */}
+      {!isAdmin && !isDevAdmin && (
         <button
           onClick={() => setAuthModalOpen(true)}
-          className="fixed bottom-6 left-6 z-50 px-3 py-1.5 rounded-full bg-surface border border-border-accent/40 text-xs text-text-secondary hover:text-text-primary hover:border-primary/60 shadow backdrop-blur-sm"
-          title="Admin? Click to login"
+          className="fixed bottom-6 left-6 z-40 px-3 py-1.5 rounded-full bg-surface/90 backdrop-blur border border-primary/30 text-xs text-text-secondary hover:text-primary hover:border-primary transition-all duration-200 shadow-glow-primary flex items-center space-x-1.5 active:scale-95"
+          title="Open admin login"
         >
-          Admin?
+          <Icon name="Lock" size={12} className="text-primary" />
+          <span>Admin</span>
         </button>
       )}
     </>

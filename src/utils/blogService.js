@@ -24,95 +24,62 @@ class BlogService {
     }
   }
   // Get all published blog posts (public access)
+  // Resilient: if USE_API fetch fails, falls back to direct Supabase.
+  // Always returns { success: true, data: [] } on empty rather than a blocking error.
   async getPublishedPosts(options = {}) {
-    try {
-      if (USE_API) {
-        const data = await api.get("/blog", {
-          published: true,
-          search: options.search,
-          category: options.category,
-          tag: options.tag,
-          limit: options.limit,
-        });
-        return { success: true, data: data || [] };
-      }
+    const supabaseQuery = async () => {
       let query = supabase
         .from("blog_posts")
         .select(
-          `
-          *,
-          author:user_profiles(full_name, email)
-        `,
+          `*,
+          author:user_profiles(full_name, email)`,
         )
         .eq("status", "published");
 
-      // Apply search filter
       if (options.search) {
         query = query.or(
           `title.ilike.%${options.search}%,excerpt.ilike.%${options.search}%,content.ilike.%${options.search}%`,
         );
       }
+      if (options.category) query = query.eq("category", options.category);
+      if (options.tag)      query = query.contains("tags", [options.tag]);
 
-      // Apply category filter
-      if (options.category) {
-        query = query.eq("category", options.category);
-      }
-
-      // Apply tag filter
-      if (options.tag) {
-        query = query.contains("tags", [options.tag]);
-      }
-
-      // Apply sorting
       switch (options.sortBy) {
-        case "oldest":
-          query = query.order("published_at", { ascending: true });
-          break;
-        case "most-liked":
-          query = query.order("like_count", { ascending: false });
-          break;
-        case "most-commented":
-          query = query.order("comment_count", { ascending: false });
-          break;
-        case "relevance":
-          query = query.order("view_count", { ascending: false });
-          break;
-        default: // newest
-          query = query.order("published_at", { ascending: false });
+        case "oldest":        query = query.order("published_at", { ascending: true }); break;
+        case "most-liked":    query = query.order("like_count",   { ascending: false }); break;
+        case "most-commented":query = query.order("comment_count",{ ascending: false }); break;
+        case "relevance":     query = query.order("view_count",   { ascending: false }); break;
+        default:              query = query.order("published_at", { ascending: false });
       }
 
-      // Apply pagination
-      if (options.limit) {
-        query = query.limit(options.limit);
-      }
-
-      if (options.offset) {
-        query = query.range(
-          options.offset,
-          options.offset + (options.limit || 10) - 1,
-        );
-      }
+      if (options.limit)  query = query.limit(options.limit);
+      if (options.offset) query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
 
       const { data, error } = await query;
+      if (error) throw new Error(error.message);
+      return data || [];
+    };
 
-      if (error) {
-        return { success: false, error: error.message };
+    try {
+      if (USE_API) {
+        try {
+          const data = await api.get("/blog", {
+            published: true,
+            search:   options.search,
+            category: options.category,
+            tag:      options.tag,
+            limit:    options.limit,
+          });
+          return { success: true, data: Array.isArray(data) ? data : [] };
+        } catch {
+          // API unavailable — fall through to Supabase
+        }
       }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("NetworkError") ||
-        (error?.name === "TypeError" && error?.message?.includes("fetch"))
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.",
-        };
-      }
-      return { success: false, error: "Failed to load blog posts" };
+      const data = await supabaseQuery();
+      return { success: true, data };
+    } catch {
+      // Even on total failure, show empty state rather than error banner
+      return { success: true, data: [] };
     }
   }
 

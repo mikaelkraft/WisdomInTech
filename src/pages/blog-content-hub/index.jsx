@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import HeaderNavigation from "../../components/ui/HeaderNavigation";
 import DynamicFooter from "../../components/ui/DynamicFooter";
@@ -15,6 +16,7 @@ import { ensureAdSenseLoaded } from "../../utils/adsense";
 
 const BlogContentHub = () => {
   const { user, userProfile } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [selectedPost, setSelectedPost] = useState(null);
@@ -253,27 +255,11 @@ const BlogContentHub = () => {
     [posts, loadPosts],
   );
 
-  const handlePostClick = useCallback(async (post) => {
-    try {
-      // For detailed view, get the full post with comments
-      const result = await blogService.getPostBySlug(post.slug);
-
-      if (result.success) {
-        setSelectedPost({
-          ...post,
-          comments: result.data.comments || [],
-        });
-      } else {
-        setSelectedPost(post);
-      }
-
-      setIsModalOpen(true);
-    } catch (error) {
-      // Fallback to original post data
-      setSelectedPost(post);
-      setIsModalOpen(true);
-    }
-  }, []);
+  const handlePostClick = useCallback((post) => {
+    // Navigate directly to dedicated blog post page — no modal
+    const slug = post.slug || post.id;
+    navigate(`/blog/${slug}`);
+  }, [navigate]);
 
   // Get visitor IP helper function
   const getVisitorIp = async () => {

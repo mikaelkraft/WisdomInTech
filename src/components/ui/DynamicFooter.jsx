@@ -71,8 +71,8 @@ const DynamicFooter = ({ currentTheme }) => {
     {
       title: "Resources",
       links: [
-        { name: "Documentation", href: "/documentation" },
-        { name: "API Reference", href: "/documentation#api" },
+        { name: "Documentation", href: "/docs" },
+        { name: "API Reference", href: "/docs#api" },
         { name: "Privacy Policy", href: "#" },
         { name: "Terms of Service", href: "#" },
       ],
