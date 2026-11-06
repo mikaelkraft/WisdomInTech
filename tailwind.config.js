@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+function withOpacity(variableName) {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `rgb(var(${variableName}) / ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
+
 module.exports = {
   content: [
     "./index.html",
@@ -7,39 +16,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary Colors
-        'primary': '#00ff66', // terminal green
-        'primary-foreground': '#0A0A0F', // deep space blue-black
+        // Dynamic theme-driven colors
+        'primary': withOpacity('--color-primary-rgb'),
+        'primary-foreground': withOpacity('--color-primary-foreground-rgb'),
         
-        // Secondary Colors
-        'secondary': '#FF0080', // vibrant magenta
-        'secondary-foreground': '#E0E0E0', // high-contrast light gray
+        'secondary': withOpacity('--color-secondary-rgb'),
+        'secondary-foreground': withOpacity('--color-secondary-foreground-rgb'),
         
-        // Accent Colors
-        'accent': '#39FF14', // matrix green
-        'accent-foreground': '#0A0A0F', // deep space blue-black
+        'accent': withOpacity('--color-accent-rgb'),
+        'accent-foreground': withOpacity('--color-accent-foreground-rgb'),
         
-        // Background Colors
-        'background': '#0A0A0F', // deep space blue-black
-        'surface': '#1A1A2E', // elevated dark blue-gray
+        'background': withOpacity('--color-background-rgb'),
+        'surface': withOpacity('--color-surface-rgb'),
         
-        // Text Colors
-        'text-primary': '#E0E0E0', // high-contrast light gray
-        'text-secondary': '#A0A0B0', // muted blue-gray
+        'text-primary': withOpacity('--color-text-primary-rgb'),
+        'text-secondary': withOpacity('--color-text-secondary-rgb'),
         
-        // Status Colors
-        'success': '#39FF14', // matrix green
-        'success-foreground': '#0A0A0F', // deep space blue-black
+        'success': withOpacity('--color-success-rgb'),
+        'success-foreground': withOpacity('--color-success-foreground-rgb'),
         
-        'warning': '#FFB000', // amber
-        'warning-foreground': '#0A0A0F', // deep space blue-black
+        'warning': withOpacity('--color-warning-rgb'),
+        'warning-foreground': withOpacity('--color-warning-foreground-rgb'),
         
-        'error': '#FF3366', // bright red-pink
-        'error-foreground': '#E0E0E0', // high-contrast light gray
+        'error': withOpacity('--color-error-rgb'),
+        'error-foreground': withOpacity('--color-error-foreground-rgb'),
         
-        // Border Colors
-        'border': '#1A1A2E', // elevated dark blue-gray
-        'border-accent': '#00ff66', // terminal green
+        'border': withOpacity('--color-border-rgb'),
+        'border-accent': withOpacity('--color-border-accent-rgb'),
       },
       fontFamily: {
         'heading': ['JetBrains Mono', 'monospace'],
@@ -58,13 +61,13 @@ module.exports = {
         'fluid-4xl': 'clamp(2.25rem, 1.9rem + 1.75vw, 3rem)',
       },
       boxShadow: {
-        'glow-primary': '0 0 8px rgba(0, 255, 102, 0.25)',
-        'glow-secondary': '0 0 8px rgba(255, 0, 128, 0.2)',
-        'glow-accent': '0 0 8px rgba(57, 255, 20, 0.25)',
-        'glow-primary-lg': '0 0 16px rgba(0, 255, 102, 0.35)',
-        'glow-secondary-lg': '0 0 16px rgba(255, 0, 128, 0.3)',
-        'glow-accent-lg': '0 0 16px rgba(57, 255, 20, 0.35)',
-        'neon': '0 0 4px rgba(0, 255, 102, 0.3), inset 0 0 4px rgba(0, 255, 102, 0.1)',
+        'glow-primary': 'var(--shadow-primary)',
+        'glow-secondary': 'var(--shadow-secondary)',
+        'glow-accent': 'var(--shadow-accent)',
+        'glow-primary-lg': 'var(--shadow-primary)',
+        'glow-secondary-lg': 'var(--shadow-secondary)',
+        'glow-accent-lg': 'var(--shadow-accent)',
+        'neon': 'var(--shadow-primary)',
       },
       animation: {
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite alternate',
@@ -72,14 +75,15 @@ module.exports = {
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         'slide-in-left': 'slide-in-left 0.3s ease-out',
+        'bounce-gentle': 'bounce-gentle 2s ease-in-out infinite',
       },
       keyframes: {
         'pulse-glow': {
           'from': {
-            'box-shadow': '0 0 4px rgba(0, 255, 102, 0.2)',
+            'box-shadow': '0 0 4px var(--color-primary)',
           },
           'to': {
-            'box-shadow': '0 0 12px rgba(0, 255, 102, 0.35)',
+            'box-shadow': '0 0 16px var(--color-primary)',
           },
         },
         'terminal-scan': {
@@ -98,30 +102,14 @@ module.exports = {
             'opacity': '1',
           },
         },
-        'slide-in-right': {
-          'from': {
-            'transform': 'translateX(100%)',
+        'bounce-gentle': {
+          '0%, 100%': {
+            'transform': 'translateY(0)',
           },
-          'to': {
-            'transform': 'translateX(0)',
-          },
-        },
-        'slide-in-left': {
-          'from': {
-            'transform': 'translateX(-100%)',
-          },
-          'to': {
-            'transform': 'translateX(0)',
+          '50%': {
+            'transform': 'translateY(-10px)',
           },
         },
-      },
-      transitionTimingFunction: {
-        'cyber': 'cubic-bezier(0.4, 0, 0.2, 1)',
-      },
-      transitionDuration: {
-        'fast': '150ms',
-        'normal': '300ms',
-        'slow': '500ms',
       },
       spacing: {
         '18': '4.5rem',
@@ -136,22 +124,12 @@ module.exports = {
         '90': '90',
         '100': '100',
       },
-      backdropBlur: {
-        'xs': '2px',
-      },
-      minHeight: {
-        'screen-minus-header': 'calc(100vh - 4rem)',
-        'screen-minus-header-mobile': 'calc(100vh - 3.5rem)',
-      },
-      maxWidth: {
-        '8xl': '88rem',
-        '9xl': '96rem',
-      },
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
-    require('@tailwindcss/aspect-ratio'),
+    require('tailwindcss-animate'),
+    require('tailwindcss-elevation'),
+    require('tailwindcss-fluid-type'),
   ],
-}
+};

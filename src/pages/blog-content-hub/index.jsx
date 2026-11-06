@@ -512,21 +512,7 @@ const BlogContentHub = () => {
 
       {/* Footer */}
       <DynamicFooter />
-      {false && <footer className="bg-surface border-t border-border-accent/20 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Icon name="Zap" size={20} className="text-primary" />
-              <span className="font-heading font-bold text-lg text-primary">
-                WisdomInTech
-              </span>
-            </div>
-            <p className="text-text-secondary text-sm font-caption">
-              © {new Date().getFullYear()} Built with love ❤️ by Mikael Kraft
-            </p>
-          </div>
-        </div>
-      </footer>}
+
     </div>
   );
 };

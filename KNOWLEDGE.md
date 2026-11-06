@@ -3,9 +3,29 @@
 ## Session: 2026-11-01
 
 ### User Requests (New Turn)
-- Every page should be a proper page and utilise the same header and footer like the homepage.
-- Use proper single names like "projects" instead of long phrases (e.g. clean single-word naming in URLs, navigation, and titles).
-- Fix color contrast: colors should be properly matched and inverted (specifically: "white on very bright green is bad combo" - fix readability when bright neon green background is paired with white text, invert to dark text or adjust contrast).
+- Work on the themes: All themes should have their own unique colors applied upon selection (backgrounds, buttons, texts, accents) app-wide, not just in selected sections.
+- Smooth animations for selections and clicks; animated down arrow in Hero section.
+- Proper single names for pages (e.g. `/blog`, `/projects`, `/admin`, `/docs`) instead of long phrases.
+- Minimise modal usage unless strictly needed (favor full dedicated pages).
+- Fix loading issues on the blog page.
+- Fix all errors in the IDE Problem tab.
+
+### Diagnostics & Root Causes
+1. **IDE Problem Tab Errors**:
+   - `src/components/ui/HeaderNavigation.jsx` line 235: Leftover Git merge conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>> ...`).
+   - `src/pages/blog-content-hub/index.jsx` line 515: `{false && <footer ...>}` triggering ESLint error `no-constant-binary-expression`.
+   - `src/components/ui/DynamicFooter.jsx`: Unused `React` import.
+2. **Themes App-Wide**:
+   - Currently, theme switching is only set locally on `document.documentElement` inside `PortfolioHomeHero`. Navigating to other pages does not carry or synchronize the theme globally.
+   - In `src/styles/tailwind.css`, themes like `theme-neural`, `theme-futuristic`, and `theme-dark` only define `--color-primary`/`secondary`/`accent` without defining unique `--color-background`, `--color-surface`, `--color-border`, leading to incomplete theming across pages.
+3. **Modal Overuse**:
+   - `ProjectsPortfolioGrid` opens `ProjectModal` on card clicks despite having a full `/project/:id` page.
+   - `BlogContentHub` opens `BlogModal` on card clicks despite having a full `/blog/:slug` page.
+4. **Blog Page Loading**:
+   - `blogService.getPublishedPosts` hard-errors if the backend API isn't reached, without cascading to Supabase or empty states.
+
+### Implementation Plan Drafted
+- Plan prepared for user review covering theme token expansion, global theme provider, animations, clean URL routing, modal reduction, and IDE lint fixes.
 
 ### Investigation & Root Causes Identified (Previous)
 1. **Database Schema & Tables Missing**:

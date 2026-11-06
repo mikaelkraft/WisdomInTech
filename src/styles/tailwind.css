@@ -8,110 +8,285 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Primary Colors */
-    --color-primary: #00ff66; /* terminal / matrix green */
-    --color-primary-foreground: #0A0A0F; /* deep space blue-black */
-    
-    /* Secondary Colors */
-    --color-secondary: #FF0080; /* vibrant magenta */
-    --color-secondary-foreground: #E0E0E0; /* high-contrast light gray */
-    
-    /* Accent Colors */
-    --color-accent: #39FF14; /* matrix green */
-    --color-accent-foreground: #0A0A0F; /* deep space blue-black */
-    
-    /* Background Colors */
-    --color-background: #0A0A0F; /* deep space blue-black */
-    --color-surface: #1A1A2E; /* elevated dark blue-gray */
-    
-    /* Text Colors */
-    --color-text-primary: #E0E0E0; /* high-contrast light gray */
-    --color-text-secondary: #A0A0B0; /* muted blue-gray */
-    
-    /* Status Colors */
-    --color-success: #39FF14; /* matrix green */
-    --color-success-foreground: #0A0A0F; /* deep space blue-black */
-    
-    --color-warning: #FFB000; /* amber */
-    --color-warning-foreground: #0A0A0F; /* deep space blue-black */
-    
-    --color-error: #FF3366; /* bright red-pink */
-    --color-error-foreground: #E0E0E0; /* high-contrast light gray */
-    
-    /* Border Colors */
-    --color-border: #1A1A2E; /* elevated dark blue-gray */
-    --color-border-accent: #00ff66; /* terminal green */
-    
-    /* Shadow Colors */
-    --shadow-primary: 0 0 8px rgba(0, 255, 102, 0.25); /* terminal green glow */
-    --shadow-secondary: 0 0 8px rgba(255, 0, 128, 0.2); /* magenta glow */
-    --shadow-accent: 0 0 8px rgba(57, 255, 20, 0.25); /* green glow */
-    
-    /* Animation Timing */
+  :root, .theme-cyberpunk {
+    /* Cyberpunk - Terminal matrix neon green & magenta */
+    --color-primary-rgb: 0 255 102;
+    --color-primary-foreground-rgb: 10 10 15;
+    --color-primary: #00ff66;
+    --color-primary-foreground: #0A0A0F;
+
+    --color-secondary-rgb: 255 0 128;
+    --color-secondary-foreground-rgb: 255 255 255;
+    --color-secondary: #FF0080;
+    --color-secondary-foreground: #FFFFFF;
+
+    --color-accent-rgb: 57 255 20;
+    --color-accent-foreground-rgb: 10 10 15;
+    --color-accent: #39FF14;
+    --color-accent-foreground: #0A0A0F;
+
+    --color-background-rgb: 10 10 15;
+    --color-background: #0A0A0F;
+
+    --color-surface-rgb: 18 19 31;
+    --color-surface: #12131F;
+
+    --color-text-primary-rgb: 224 224 224;
+    --color-text-primary: #E0E0E0;
+
+    --color-text-secondary-rgb: 160 160 176;
+    --color-text-secondary: #A0A0B0;
+
+    --color-success-rgb: 57 255 20;
+    --color-success-foreground-rgb: 10 10 15;
+    --color-success: #39FF14;
+    --color-success-foreground: #0A0A0F;
+
+    --color-warning-rgb: 255 176 0;
+    --color-warning-foreground-rgb: 10 10 15;
+    --color-warning: #FFB000;
+    --color-warning-foreground: #0A0A0F;
+
+    --color-error-rgb: 255 51 102;
+    --color-error-foreground-rgb: 240 240 240;
+    --color-error: #FF3366;
+    --color-error-foreground: #F0F0F0;
+
+    --color-border-rgb: 31 41 61;
+    --color-border: #1F293D;
+
+    --color-border-accent-rgb: 0 255 102;
+    --color-border-accent: #00ff66;
+
+    --shadow-primary: 0 0 16px rgba(0, 255, 102, 0.4);
+    --shadow-secondary: 0 0 16px rgba(255, 0, 128, 0.3);
+    --shadow-accent: 0 0 16px rgba(57, 255, 20, 0.4);
+
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Theme-specific color schemes */
-  .theme-cyberpunk {
-    /* Cyberpunk - Terminal green & magenta */
-    --color-primary: #00ff66; /* terminal green */
-    --color-secondary: #FF0080; /* vibrant magenta */
-    --color-accent: #39FF14; /* matrix green */
-    --shadow-primary: 0 0 8px rgba(0, 255, 102, 0.25);
-    --shadow-secondary: 0 0 8px rgba(255, 0, 128, 0.2);
-    --shadow-accent: 0 0 8px rgba(57, 255, 20, 0.25);
-  }
-
   .theme-dark {
-    /* Dark - Deep blue/slate tones */
-    --color-primary: #3B82F6; /* blue-500 */
-    --color-secondary: #1E40AF; /* blue-800 */
-    --color-accent: #60A5FA; /* blue-400 */
-    --shadow-primary: 0 0 8px rgba(59, 130, 246, 0.2);
-    --shadow-secondary: 0 0 8px rgba(30, 64, 175, 0.2);
-    --shadow-accent: 0 0 8px rgba(96, 165, 250, 0.2);
+    /* Dark - Electric blue & deep midnight slate */
+    --color-primary-rgb: 59 130 246;
+    --color-primary-foreground-rgb: 255 255 255;
+    --color-primary: #3B82F6;
+    --color-primary-foreground: #FFFFFF;
+
+    --color-secondary-rgb: 99 102 241;
+    --color-secondary-foreground-rgb: 255 255 255;
+    --color-secondary: #6366F1;
+    --color-secondary-foreground: #FFFFFF;
+
+    --color-accent-rgb: 56 189 248;
+    --color-accent-foreground-rgb: 11 15 25;
+    --color-accent: #38BDF8;
+    --color-accent-foreground: #0B0F19;
+
+    --color-background-rgb: 11 15 25;
+    --color-background: #0B0F19;
+
+    --color-surface-rgb: 17 24 39;
+    --color-surface: #111827;
+
+    --color-text-primary-rgb: 243 244 246;
+    --color-text-primary: #F3F4F6;
+
+    --color-text-secondary-rgb: 156 163 175;
+    --color-text-secondary: #9CA3AF;
+
+    --color-success-rgb: 34 197 94;
+    --color-success-foreground-rgb: 11 15 25;
+    --color-success: #22C55E;
+    --color-success-foreground: #0B0F19;
+
+    --color-warning-rgb: 245 158 11;
+    --color-warning-foreground-rgb: 11 15 25;
+    --color-warning: #F59E0B;
+    --color-warning-foreground: #0B0F19;
+
+    --color-error-rgb: 239 68 68;
+    --color-error-foreground-rgb: 255 255 255;
+    --color-error: #EF4444;
+    --color-error-foreground: #FFFFFF;
+
+    --color-border-rgb: 31 41 55;
+    --color-border: #1F2937;
+
+    --color-border-accent-rgb: 59 130 246;
+    --color-border-accent: #3B82F6;
+
+    --shadow-primary: 0 0 16px rgba(59, 130, 246, 0.4);
+    --shadow-secondary: 0 0 16px rgba(99, 102, 241, 0.3);
+    --shadow-accent: 0 0 16px rgba(56, 189, 248, 0.4);
   }
 
   .theme-neural {
-    /* Neural - Purple/violet tones */
-    --color-primary: #8B5CF6; /* violet-500 */
-    --color-secondary: #A855F7; /* purple-500 */
-    --color-accent: #C084FC; /* purple-400 */
-    --shadow-primary: 0 0 8px rgba(139, 92, 246, 0.2);
-    --shadow-secondary: 0 0 8px rgba(168, 85, 247, 0.2);
-    --shadow-accent: 0 0 8px rgba(192, 132, 252, 0.2);
+    /* Neural - Cosmic deep purple & radiant violet */
+    --color-primary-rgb: 168 85 247;
+    --color-primary-foreground-rgb: 255 255 255;
+    --color-primary: #A855F7;
+    --color-primary-foreground: #FFFFFF;
+
+    --color-secondary-rgb: 236 72 153;
+    --color-secondary-foreground-rgb: 255 255 255;
+    --color-secondary: #EC4899;
+    --color-secondary-foreground: #FFFFFF;
+
+    --color-accent-rgb: 192 132 252;
+    --color-accent-foreground-rgb: 15 8 29;
+    --color-accent: #C084FC;
+    --color-accent-foreground: #0F081D;
+
+    --color-background-rgb: 15 8 29;
+    --color-background: #0F081D;
+
+    --color-surface-rgb: 26 16 50;
+    --color-surface: #1A1032;
+
+    --color-text-primary-rgb: 245 243 255;
+    --color-text-primary: #F5F3FF;
+
+    --color-text-secondary-rgb: 196 181 253;
+    --color-text-secondary: #C4B5FD;
+
+    --color-success-rgb: 74 222 128;
+    --color-success-foreground-rgb: 15 8 29;
+    --color-success: #4ADE80;
+    --color-success-foreground: #0F081D;
+
+    --color-warning-rgb: 251 191 36;
+    --color-warning-foreground-rgb: 15 8 29;
+    --color-warning: #FBBF24;
+    --color-warning-foreground: #0F081D;
+
+    --color-error-rgb: 244 63 94;
+    --color-error-foreground-rgb: 255 255 255;
+    --color-error: #F43F5E;
+    --color-error-foreground: #FFFFFF;
+
+    --color-border-rgb: 46 16 101;
+    --color-border: #2E1065;
+
+    --color-border-accent-rgb: 168 85 247;
+    --color-border-accent: #A855F7;
+
+    --shadow-primary: 0 0 16px rgba(168, 85, 247, 0.4);
+    --shadow-secondary: 0 0 16px rgba(236, 72, 153, 0.3);
+    --shadow-accent: 0 0 16px rgba(192, 132, 252, 0.4);
   }
 
   .theme-futuristic {
-    /* Futuristic - Metallic blue/slate */
-    --color-primary: #0EA5E9; /* sky-500 */
-    --color-secondary: #0284C7; /* sky-600 */
-    --color-accent: #38BDF8; /* sky-400 */
-    --shadow-primary: 0 0 8px rgba(14, 165, 233, 0.2);
-    --shadow-secondary: 0 0 8px rgba(2, 132, 199, 0.2);
-    --shadow-accent: 0 0 8px rgba(56, 189, 248, 0.2);
+    /* Futuristic - Titanium deep teal & laser cyan */
+    --color-primary-rgb: 6 182 212;
+    --color-primary-foreground-rgb: 8 18 23;
+    --color-primary: #06B6D4;
+    --color-primary-foreground: #081217;
+
+    --color-secondary-rgb: 2 132 199;
+    --color-secondary-foreground-rgb: 255 255 255;
+    --color-secondary: #0284C7;
+    --color-secondary-foreground: #FFFFFF;
+
+    --color-accent-rgb: 34 211 238;
+    --color-accent-foreground-rgb: 8 18 23;
+    --color-accent: #22D3EE;
+    --color-accent-foreground: #081217;
+
+    --color-background-rgb: 8 18 23;
+    --color-background: #081217;
+
+    --color-surface-rgb: 14 31 38;
+    --color-surface: #0E1F26;
+
+    --color-text-primary-rgb: 236 254 255;
+    --color-text-primary: #ECFEFF;
+
+    --color-text-secondary-rgb: 148 163 184;
+    --color-text-secondary: #94A3B8;
+
+    --color-success-rgb: 45 212 191;
+    --color-success-foreground-rgb: 8 18 23;
+    --color-success: #2DD4BF;
+    --color-success-foreground: #081217;
+
+    --color-warning-rgb: 251 191 36;
+    --color-warning-foreground-rgb: 8 18 23;
+    --color-warning: #FBBF24;
+    --color-warning-foreground: #081217;
+
+    --color-error-rgb: 248 113 113;
+    --color-error-foreground-rgb: 255 255 255;
+    --color-error: #F87171;
+    --color-error-foreground: #FFFFFF;
+
+    --color-border-rgb: 21 94 117;
+    --color-border: #155E75;
+
+    --color-border-accent-rgb: 6 182 212;
+    --color-border-accent: #06B6D4;
+
+    --shadow-primary: 0 0 16px rgba(6, 182, 212, 0.4);
+    --shadow-secondary: 0 0 16px rgba(2, 132, 199, 0.3);
+    --shadow-accent: 0 0 16px rgba(34, 211, 238, 0.4);
   }
 
   .theme-light {
-    /* Light - Professional grays with blue accent */
-    --color-primary: #1F2937; /* gray-800 */
-    --color-secondary: #374151; /* gray-700 */
-    --color-accent: #3B82F6; /* blue-500 */
-    --color-background: #F9FAFB; /* gray-50 */
-    --color-surface: #FFFFFF; /* white */
-    --color-text-primary: #1F2937; /* gray-800 */
-    --color-text-secondary: #6B7280; /* gray-500 */
-    --color-border: #E5E7EB; /* gray-200 */
-    --color-border-accent: #3B82F6; /* blue-500 */
-    --shadow-primary: 0 0 8px rgba(31, 41, 55, 0.1);
-    --shadow-secondary: 0 0 8px rgba(55, 65, 81, 0.1);
-    --shadow-accent: 0 0 8px rgba(59, 130, 246, 0.1);
-  }
+    /* Light - Clean crisp slate & bold sapphire */
+    --color-primary-rgb: 37 99 235;
+    --color-primary-foreground-rgb: 255 255 255;
+    --color-primary: #2563EB;
+    --color-primary-foreground: #FFFFFF;
 
-  * {
+    --color-secondary-rgb: 15 23 42;
+    --color-secondary-foreground-rgb: 255 255 255;
+    --color-secondary: #0F172A;
+    --color-secondary-foreground: #FFFFFF;
+
+    --color-accent-rgb: 2 132 199;
+    --color-accent-foreground-rgb: 255 255 255;
+    --color-accent: #0284C7;
+    --color-accent-foreground: #FFFFFF;
+
+    --color-background-rgb: 248 250 252;
+    --color-background: #F8FAFC;
+
+    --color-surface-rgb: 255 255 255;
+    --color-surface: #FFFFFF;
+
+    --color-text-primary-rgb: 15 23 42;
+    --color-text-primary: #0F172A;
+
+    --color-text-secondary-rgb: 71 85 105;
+    --color-text-secondary: #475569;
+
+    --color-success-rgb: 22 163 74;
+    --color-success-foreground-rgb: 255 255 255;
+    --color-success: #16A34A;
+    --color-success-foreground: #FFFFFF;
+
+    --color-warning-rgb: 217 119 6;
+    --color-warning-foreground-rgb: 255 255 255;
+    --color-warning: #D97706;
+    --color-warning-foreground: #FFFFFF;
+
+    --color-error-rgb: 220 38 38;
+    --color-error-foreground-rgb: 255 255 255;
+    --color-error: #DC2626;
+    --color-error-foreground: #FFFFFF;
+
+    --color-border-rgb: 226 232 240;
+    --color-border: #E2E8F0;
+
+    --color-border-accent-rgb: 37 99 235;
+    --color-border-accent: #2563EB;
+
+    --shadow-primary: 0 4px 14px rgba(37, 99, 235, 0.2);
+    --shadow-secondary: 0 4px 14px rgba(15, 23, 42, 0.12);
+    --shadow-accent: 0 4px 14px rgba(2, 132, 199, 0.2);
+  }
+}* {
     border-color: var(--color-border);
   }
 

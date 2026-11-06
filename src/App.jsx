@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter } from "react-router-dom";
 import { ToastProvider, ToastContainer } from "./contexts/ToastContext.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import Routes from "./Routes.jsx";
 import OGMeta from "./components/seo/OGMeta.jsx";
 import Canonical from "./components/seo/Canonical.jsx";
@@ -48,7 +49,8 @@ function App() {
 
   return (
     <HelmetProvider>
-      <BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
         <ToastProvider defaultDuration={toastDuration}>
           <AuthProvider>
             <OGMeta />
@@ -58,7 +60,8 @@ function App() {
             <CommandPalette />
           </AuthProvider>
         </ToastProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </ThemeProvider>
     </HelmetProvider>
   );
 }

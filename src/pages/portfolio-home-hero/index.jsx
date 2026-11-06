@@ -10,12 +10,12 @@ import FeaturedBlogPosts from "./components/FeaturedBlogPosts";
 import NewsletterSubscription from "./components/NewsletterSubscription";
 import ThemeControls from "./components/ThemeControls";
 import DynamicFooter from "./components/DynamicFooter";
+import { useTheme } from "../../contexts/ThemeContext";
 
 import settingsService from "../../utils/settingsService";
 
 const PortfolioHomeHero = () => {
-  const [currentTheme, setCurrentTheme] = useState("cyberpunk");
-  const [fontSize, setFontSize] = useState("medium");
+  const { theme: currentTheme, setTheme: setCurrentTheme, fontSize, setFontSize } = useTheme();
   const [isThemeControlsOpen, setIsThemeControlsOpen] = useState(false);
   const [heroVideoUrl, setHeroVideoUrl] = useState("");
   const [videoEnabled, setVideoEnabled] = useState(true);
@@ -74,18 +74,7 @@ const PortfolioHomeHero = () => {
   };
 
   const getBackgroundClass = () => {
-    switch (currentTheme) {
-      case "dark":
-        return "bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800";
-      case "neural":
-        return "bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900";
-      case "futuristic":
-        return "bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900";
-      case "light":
-        return "bg-gradient-to-br from-gray-50 via-white to-blue-50";
-      default: // cyberpunk
-        return "bg-gradient-to-br from-background via-surface to-background";
-    }
+    return "bg-background transition-colors duration-500";
   };
 
   return (

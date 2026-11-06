@@ -113,7 +113,7 @@ const HeroSection = ({ currentTheme }) => {
   const textColors = getTextClasses();
 
   return (
-    <section className={`min-h-screen flex items-center justify-center px-6 py-20 relative overflow-hidden ${currentTheme === 'light' ? 'bg-white' : 'bg-background'}`}>
+    <section className="min-h-screen flex items-center justify-center px-6 py-20 relative overflow-hidden bg-background transition-colors duration-500">
       {/* Ambient Background Elements (stabilized to prevent raster stall & black flashes) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {currentTheme !== 'light' && (
@@ -139,9 +139,9 @@ const HeroSection = ({ currentTheme }) => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 tracking-tight flex items-center justify-center flex-wrap gap-x-3 text-[#39FF14]">
-          <span className="text-[#39FF14] opacity-90 select-none font-mono">//</span>
-          <span className="text-[#39FF14] drop-shadow-[0_0_24px_rgba(57,255,20,0.5)]">
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 tracking-tight flex items-center justify-center flex-wrap gap-x-3 text-primary">
+          <span className="text-primary opacity-90 select-none font-mono">//</span>
+          <span className="text-primary drop-shadow-[0_0_24px_var(--color-primary)]">
             Mikael Kraft
           </span>
         </h1>
@@ -178,36 +178,42 @@ const HeroSection = ({ currentTheme }) => {
                 window.location.href = '/projects';
               }
             }}
-            className={`
-            px-8 py-4 rounded-lg font-medium text-lg transition-all duration-fast
-            ${currentTheme === 'light' ?'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl' :'bg-primary text-background hover:bg-primary/90 glow-primary hover:shadow-glow-primary'
-            }
-            min-h-[48px] min-w-[160px]
-          `}>
+            className="px-8 py-4 rounded-lg font-semibold text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-primary hover:shadow-glow-primary hover:scale-105 active:scale-95 transition-all duration-300 min-h-[48px] min-w-[160px]"
+          >
             <Icon name="FolderOpen" size={20} className="inline mr-2" />
             View Projects
           </button>
           <button 
             onClick={handleDownloadResume}
             disabled={!settings.resumeUrl}
-            className={`
-              px-8 py-4 rounded-lg font-medium text-lg transition-all duration-fast border-2
-              ${!settings.resumeUrl ? 'opacity-50 cursor-not-allowed' : ''}
-              ${currentTheme === 'light' ?'border-blue-600 text-blue-600 hover:bg-blue-50' :'border-primary text-primary hover:bg-primary/10'
-              }
-              min-h-[48px] min-w-[160px]
-            `}
+            className={`px-8 py-4 rounded-lg font-medium text-lg border-2 border-primary/40 text-text-primary hover:text-primary hover:border-primary hover:bg-primary/10 hover:scale-105 active:scale-95 transition-all duration-300 min-h-[48px] min-w-[160px] ${!settings.resumeUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <Icon name="Download" size={20} className="inline mr-2" />
             Download CV
           </button>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Animated Scroll Down Indicator */}
         <div className="flex justify-center">
-          <div className={`animate-bounce ${textColors.secondary}`}>
-            <Icon name="ChevronDown" size={24} />
-          </div>
+          <button
+            onClick={() => {
+              const el = document.getElementById("projects");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              } else {
+                window.location.href = "/projects";
+              }
+            }}
+            className="group flex flex-col items-center focus:outline-none p-3 transition-transform duration-300 hover:scale-125"
+            aria-label="Scroll to Projects"
+          >
+            <span className="text-xs font-caption text-text-secondary opacity-60 group-hover:opacity-100 group-hover:text-primary transition-all duration-300 mb-1">
+              Scroll Down
+            </span>
+            <div className="w-10 h-10 rounded-full border border-primary/30 group-hover:border-primary flex items-center justify-center text-primary bg-primary/5 group-hover:bg-primary/20 shadow-glow-primary transition-all duration-300 animate-bounce">
+              <Icon name="ChevronDown" size={22} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+            </div>
+          </button>
         </div>
       </div>
 
