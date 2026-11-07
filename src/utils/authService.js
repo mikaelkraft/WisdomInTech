@@ -39,7 +39,7 @@ class AuthService {
     }
   }
 
-  // Sign in with email and password (multi-user; admin rights sensed from env config)
+  // Sign in with email and password via Supabase Auth
   async signIn(email, password) {
     try {
       if (!email || !password) {
@@ -53,45 +53,10 @@ class AuthService {
       });
 
       if (error) {
-        // Dev passcode fallback strictly from environment variable, never hardcoded
-        const configuredDevPasscode =
-          typeof import.meta !== "undefined" &&
-          import.meta.env &&
-          import.meta.env.VITE_DEV_ADMIN_PASSCODE;
-
-        if (
-          configuredDevPasscode &&
-          isAdminEmail(normalizedEmail) &&
-          password === configuredDevPasscode
-        ) {
-          const devUserId =
-            (import.meta.env && import.meta.env.VITE_DEV_ADMIN_USER_ID) ||
-            "admin-dev-user";
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem("dev_admin", "true");
-            window.localStorage.setItem("dev_admin_email", normalizedEmail);
-            if (import.meta.env && import.meta.env.VITE_DEV_ADMIN_TOKEN) {
-              window.localStorage.setItem(
-                "dev_admin_token",
-                import.meta.env.VITE_DEV_ADMIN_TOKEN,
-              );
-            }
-          }
-          return {
-            success: true,
-            data: {
-              user: {
-                id: devUserId,
-                email: normalizedEmail,
-                role: "admin",
-              },
-            },
-          };
-        }
         return { success: false, error: error.message };
       }
 
-      // Check admin rights sensed from env
+      // Check admin rights sensed from env and synchronize with Neon
       const isConfiguredAdmin = isAdminEmail(data?.user?.email || normalizedEmail);
       const role = isConfiguredAdmin ? "admin" : "member";
 
@@ -191,30 +156,11 @@ class AuthService {
   async signOut() {
     try {
       const { error } = await supabase.auth.signOut();
-
-      try {
-        if (typeof window !== "undefined") {
-          window.localStorage.removeItem("dev_admin");
-          window.localStorage.removeItem("dev_admin_email");
-          window.localStorage.removeItem("dev_admin_code");
-        }
-      } catch {
-        // ignore storage cleanup errors
-      }
-
       if (error) {
         return { success: false, error: error.message };
       }
-
       return { success: true };
     } catch (error) {
-      try {
-        if (typeof window !== "undefined") {
-          window.localStorage.removeItem("dev_admin");
-          window.localStorage.removeItem("dev_admin_email");
-          window.localStorage.removeItem("dev_admin_code");
-        }
-      } catch {}
       return {
         success: false,
         error: error?.message || "An unexpected error occurred during sign out",
@@ -311,53 +257,12 @@ class AuthService {
   // Get current session
   async getSession() {
     try {
-      if (
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        const email =
-          window.localStorage.getItem("dev_admin_email") || ADMIN_EMAIL;
-        return {
-          success: true,
-          data: {
-            session: {
-              access_token: "dev-admin-token",
-              user: {
-                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-                email,
-                role: "admin",
-              },
-            },
-          },
-        };
-      }
-
       const { data, error } = await supabase.auth.getSession();
-
       if (error) {
         return { success: false, error: error.message };
       }
-
       return { success: true, data };
     } catch (error) {
-      if (
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        return {
-          success: true,
-          data: {
-            session: {
-              access_token: "dev-admin-token",
-              user: {
-                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-                email: ADMIN_EMAIL,
-                role: "admin",
-              },
-            },
-          },
-        };
-      }
       return { success: false, error: error?.message || "Failed to get session" };
     }
   }
@@ -365,23 +270,6 @@ class AuthService {
   // Get user profile
   async getUserProfile(userId) {
     try {
-      if (
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        const email =
-          window.localStorage.getItem("dev_admin_email") || ADMIN_EMAIL;
-        return {
-          success: true,
-          data: {
-            id: userId || "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-            email,
-            full_name: "Admin User",
-            role: "admin",
-          },
-        };
-      }
-
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
@@ -473,19 +361,6 @@ class AuthService {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        const configuredDevToken =
-          typeof import.meta !== "undefined" &&
-          import.meta.env &&
-          import.meta.env.VITE_DEV_ADMIN_TOKEN;
-        if (
-          configuredDevToken &&
-          typeof window !== "undefined" &&
-          window.localStorage.getItem("dev_admin") === "true" &&
-          window.localStorage.getItem("dev_admin_token") === configuredDevToken
-        ) {
-          const storedEmail = window.localStorage.getItem("dev_admin_email");
-          return isAdminEmail(storedEmail);
-        }
         return false;
       }
 

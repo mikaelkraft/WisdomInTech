@@ -41,21 +41,6 @@ async function verifyAuth(req) {
     if (!auth || !auth.startsWith("Bearer ")) return { user: null };
     const token = auth.slice(7).trim();
 
-    // Dev admin token verified ONLY if explicitly configured in server environment
-    const configuredDevToken = process.env.DEV_ADMIN_TOKEN;
-    if (configuredDevToken && token === configuredDevToken) {
-      const adminEmail =
-        process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL;
-      if (adminEmail) {
-        return {
-          user: {
-            id: process.env.DEV_ADMIN_USER_ID || "admin",
-            email: adminEmail.split(",")[0].trim(),
-          },
-        };
-      }
-    }
-
     const user = await fetchSupabaseUser(token);
     if (!user || !user.id) return { user: null };
     return { user: { id: user.id, email: user.email } };

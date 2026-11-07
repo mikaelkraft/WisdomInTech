@@ -144,3 +144,14 @@
   - `DEV_ADMIN_USER_ID` & `VITE_DEV_ADMIN_USER_ID`: Fixed UUID for local development user mapping.
   - `VITE_DEV_ADMIN_PASSCODE`: Optional local development passcode strictly confined to `.env`.
 - Updated `.env.example` with sanitized template documentation for multi-user admin sensing, OAuth, and dev tokens.
+
+### Architecture Decision: Supabase for Auth / Neon for Data Storage
+- Explicitly aligned platform division of responsibility per user instruction:
+  - **Supabase**: Handles 100% of login, registration, passwordless OTP, OAuth (Google/GitHub), password reset, and access token issuance.
+  - **Neon PostgreSQL**: Stores all application data (`wisdomintech.projects`, `wisdomintech.blog_posts`, `wisdomintech.comments`, `wisdomintech.site_settings`, and user profile data/roles in `wisdomintech.user_profiles`).
+- **Profile & Role Synchronization**:
+  - Upon user sign-in or registration via Supabase, `ensureUserProfile` synchronizes the identity with Neon.
+  - If the user's email matches `ADMIN_EMAIL` / `VITE_ADMIN_EMAIL` in `.env`, their Neon profile is assigned `role = 'admin'`, granting immediate dashboard access (`/admin`).
+  - Other registering users are assigned `role = 'member'` in Neon for collaborative project tracking.
+  - Purged old dev passcode and custom token workarounds from `authService.js`, `backend/_lib/auth.js`, `src/utils/api/client.js`, and `.env` / `.env.example`.
+- Verified 0 ESLint errors across all auth and API files.

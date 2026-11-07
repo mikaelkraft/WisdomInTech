@@ -9,17 +9,6 @@ async function getAuthHeader() {
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }
-    const devToken =
-      typeof import.meta !== "undefined" &&
-      import.meta.env &&
-      import.meta.env.VITE_DEV_ADMIN_TOKEN;
-    if (
-      devToken &&
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("dev_admin") === "true"
-    ) {
-      return { Authorization: `Bearer ${devToken}` };
-    }
   } catch {}
   return {};
 }
