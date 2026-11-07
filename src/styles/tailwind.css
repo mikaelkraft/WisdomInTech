@@ -286,7 +286,8 @@
     --shadow-secondary: 0 4px 14px rgba(15, 23, 42, 0.12);
     --shadow-accent: 0 4px 14px rgba(2, 132, 199, 0.2);
   }
-}* {
+
+  * {
     border-color: var(--color-border);
   }
 

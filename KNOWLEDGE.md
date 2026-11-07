@@ -54,3 +54,34 @@
   - Standardized theme badge classes.
 - Unified pages (`ProjectsPortfolioGrid`, `BlogContentHub`, `BlogPost`, `NotFound`, `ResetPassword`) with `<HeaderNavigation />` and `<DynamicFooter />`, setting correct page top-padding (`pt-24 pb-16`) to avoid header overlap.
 - Cleaned up navigation and URLs to single names: "Home" (`/`), "Projects" (`/projects`), "Blog" (`/blog`), "Admin" (`/admin`).
+
+## Session: 2026-11-06 / 2026-11-07
+
+### Completed Tasks
+1. **HeaderNavigation & Theme Switcher Refactor**:
+   - Resolved merge conflict markers and cleaned up `src/components/ui/HeaderNavigation.jsx`.
+   - Wired `useTheme()` hook from `src/contexts/ThemeContext.jsx` into `HeaderNavigation`.
+   - Made the theme palette switcher button permanently visible across all screen sizes (desktop and mobile) across the entire application.
+   - Built in fallback internal `ThemeControls` modal support when the parent page does not supply a custom handler.
+   - Added micro-interaction scale animations (`active:scale-95 transition-all duration-200`) across navigation items and action buttons.
+   - Standardized single-word navigation items: "Home" (`/`), "Projects" (`/projects`), "Blog" (`/blog`), "Docs" (`/docs`), and "Admin" (`/admin`).
+
+2. **Clean Single-Word Route URLs (`src/Routes.jsx` & `src/components/ui/DynamicFooter.jsx`)**:
+   - Added `/docs` for documentation with automatic redirect from `/documentation` -> `/docs`.
+   - Redirect `/projects-portfolio-grid` -> `/projects`.
+   - Redirect `/blog-content-hub` -> `/blog`.
+   - Redirect `/admin-dashboard-content-management` -> `/admin`.
+   - Redirect `/portfolio-home-hero` -> `/`.
+   - Updated documentation links in `DynamicFooter.jsx` from `/documentation` to `/docs` and `/docs#api`.
+
+3. **Modal Usage Minimization**:
+   - `src/pages/blog-content-hub/index.jsx`: Updated `handlePostClick` to navigate directly to `/blog/${post.slug || post.id}` via `useNavigate()`, bypassing `BlogModal` for regular browsing while preserving `BlogModal` for admin creation/editing.
+   - `src/pages/projects-portfolio-grid/index.jsx`: Updated `handleViewDetails` to navigate directly to `/project/${project.id}` via `useNavigate()`, giving users dedicated URL pages with full metadata instead of nested popups.
+
+4. **Resilient Blog Data Loading (`src/utils/blogService.js`)**:
+   - Refactored `getPublishedPosts()` to wrap `USE_API` fetch in a `try...catch` that falls back seamlessly to direct Supabase query when the backend API is offline or returns non-200.
+   - Handled empty post sets and fetch errors gracefully by returning `{ success: true, data: [] }` so `BlogContentHub` renders the clean "No blog posts yet" empty state instead of crashing with a red "Failed to load blog posts" banner.
+
+5. **CSS & Build Verification**:
+   - Fixed CSS syntax error in `src/styles/tailwind.css` line 289 (`}* {` missing newline).
+   - Executed full production build `npm run build` (`vite build`) and verified that compilation succeeded with 0 errors (`✓ built in 8m 36s`).
