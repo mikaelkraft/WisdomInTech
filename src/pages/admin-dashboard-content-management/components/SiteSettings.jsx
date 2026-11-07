@@ -1323,8 +1323,8 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
       },
       {
         key: "auth_twitter",
-        name: "X (Twitter) OAuth",
-        desc: "Allow users to authenticate with their X / Twitter profile.",
+        name: "X (formerly Twitter) OAuth",
+        desc: "Allow users to authenticate with their X account.",
         docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-twitter",
       },
       {

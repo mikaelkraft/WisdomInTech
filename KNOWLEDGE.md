@@ -216,3 +216,15 @@
 - **Verification**:
   - Tested `/api/profile/showcase?username=mike` -> returns 200 OK with full creator profile and 3 seeded published projects.
   - Zero ESLint errors and zero warnings across all files.
+
+### OAuth Resolution & X (Twitter) Rebrand
+- **Fixed `ae.auth.signInWithOAuth is not a function`**:
+  - Root cause: `src/utils/supabase.js` `buildNoopClient` fallback mock was missing `signInWithOAuth`. If Vite client ran without picking up `.env` or in no-op mode, invoking OAuth threw `TypeError: ae.auth.signInWithOAuth is not a function`.
+  - Added mock implementation of `signInWithOAuth` in `buildNoopClient` returning descriptive guidance.
+  - Added defensive guards in `src/utils/authService.js` to verify `supabase?.auth?.signInWithOAuth` before invoking.
+  - Dynamically configured `redirectTo` to preserve user destination (`/admin` vs `/workspace`).
+- **Rebranded Twitter to X**:
+  - Updated OAuth button in `Login.jsx` to render **"X"** with the modern X logo.
+  - Updated Provider settings in `SiteSettings.jsx` to **"X (formerly Twitter) OAuth"**.
+  - Updated Creator Showcase & User Workspace social links to `x.com/:handle`.
+- Recompiled production build (`npm run build`).

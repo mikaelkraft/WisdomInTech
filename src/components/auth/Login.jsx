@@ -115,7 +115,7 @@ const Login = ({ onClose, onSuccess, defaultMode = "password" }) => {
     },
     twitterEnabled && {
       id: "twitter",
-      name: "X (Twitter)",
+      name: "X",
       icon: <XIcon />,
       className:
         "bg-black hover:bg-neutral-900 text-white border border-neutral-700 font-medium",

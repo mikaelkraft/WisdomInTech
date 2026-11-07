@@ -83,13 +83,26 @@ class AuthService {
     }
   }
 
-  // Sign in with OAuth (Google, GitHub, etc.)
+  // Sign in with OAuth (Google, GitHub, X, Discord, LinkedIn, GitLab)
   async signInWithOAuth(provider) {
     try {
+      if (!supabase || !supabase.auth || typeof supabase.auth.signInWithOAuth !== "function") {
+        return {
+          success: false,
+          error: `OAuth client is not initialized for ${provider}. Please verify VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env and restart the dev server.`,
+        };
+      }
+
+      // Preserve redirect target
+      const redirectPath =
+        window.location.pathname.startsWith("/admin")
+          ? "/admin"
+          : "/workspace";
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/admin`,
+          redirectTo: `${window.location.origin}${redirectPath}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",

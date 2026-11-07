@@ -959,7 +959,7 @@ const UserWorkspace = () => {
 
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">
-                    Twitter / X Handle
+                    X Handle (@handle)
                   </label>
                   <input
                     type="text"

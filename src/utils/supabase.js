@@ -19,6 +19,12 @@ function buildNoopClient(reason = "supabase_env_missing") {
       getUser: async () => ({ data: { user: null }, error: null }),
       signOut: async () => ({ error: null }),
       signInWithPassword: async () => ({ data: null, error: { message: reason } }),
+      signInWithOAuth: async ({ provider } = {}) => ({
+        data: null,
+        error: {
+          message: `Supabase authentication is operating in no-op mode (VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY missing). Please check your .env and restart Vite to enable ${provider || "OAuth"} sign-in.`,
+        },
+      }),
       signUp: async () => ({ data: null, error: { message: reason } }),
       verifyOtp: async () => ({ data: null, error: { message: reason } }),
       resetPasswordForEmail: async () => ({ error: null }),

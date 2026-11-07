@@ -188,13 +188,13 @@ const CreatorShowcase = () => {
                       )}
                       {user.twitterHandle && (
                         <a
-                          href={`https://twitter.com/${user.twitterHandle}`}
+                          href={`https://x.com/${user.twitterHandle}`}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-1.5 text-slate-300 hover:text-cyan-400 transition-colors"
                         >
                           <Icon name="Twitter" className="w-3.5 h-3.5" />
-                          <span>twitter/{user.twitterHandle}</span>
+                          <span>x.com/{user.twitterHandle}</span>
                         </a>
                       )}
                       {user.linkedinHandle && (
