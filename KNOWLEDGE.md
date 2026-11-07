@@ -228,3 +228,18 @@
   - Updated Provider settings in `SiteSettings.jsx` to **"X (formerly Twitter) OAuth"**.
   - Updated Creator Showcase & User Workspace social links to `x.com/:handle`.
 - Recompiled production build (`npm run build`).
+
+### Hero Section Redesign: Trapezoid Container & Editable Stacks
+- **Trapezoid Hero Container & Co-linear Name Layout (`HeroSection.jsx`)**:
+  - Replaced the round avatar circle with a geometric cyberpunk **trapezoid container** (`clipPath: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%)`) featuring an ambient gradient glow aura, border frame, and inner image crop with micro-zoom on hover.
+  - Positioned the trapezoid container on the **left side in the exact same row** adjacent to the user's name: `// Mikael Kraft` (with optional subtitle/tagline).
+- **Dynamic & Editable Sliding Stacks**:
+  - Removed hardcoded "React/Node.js" phrases.
+  - Stored customizable typing phrases in `settings.ui.hero_stacks` (persisted in Neon `wisdomintech.site_settings.ui`), defaulting to autonomous engineering & distributed systems stacks ("AI Autonomous Systems Architect", "Distributed Cloud & Data Infrastructure", "Full-Stack Engineering & Tooling", "High-Performance Edge Computing", "Next-Gen Digital Workforce").
+  - Added dedicated Hero customization controls in `SiteSettings.jsx`:
+    1. Hero Display Name
+    2. Hero Subtitle / Tagline
+    3. Sliding Hero Stacks & Specializations (multi-line textarea editor)
+    4. Hero Overview Description Paragraph
+  - Seeded initial hero stacks and name into Neon `site_settings.ui`.
+- **Code Quality**: Verified clean ESLint check (0 errors, 0 warnings).

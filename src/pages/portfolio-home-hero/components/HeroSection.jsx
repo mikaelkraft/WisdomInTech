@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import settingsService from '../../../utils/settingsService';
@@ -30,7 +30,7 @@ const HeroSection = ({ currentTheme }) => {
       const pathname = urlObj.pathname;
       const filename = pathname.substring(pathname.lastIndexOf('/') + 1) || 'resume.pdf';
       return filename;
-    } catch (e) {
+    } catch {
       return 'resume.pdf';
     }
   };
@@ -50,17 +50,46 @@ const HeroSection = ({ currentTheme }) => {
     }
   };
 
-  const phrases = [
-    "React Developer",
-    "Node.js Developer", 
-    "Full-Stack Engineer",
-    "JavaScript Expert",
-    "React Specialist"
-  ];
+  const heroName =
+    settings.ui?.hero_name ||
+    settings.hero_name ||
+    settings.site_title ||
+    "Mikael Kraft";
+
+  const heroTagline =
+    settings.ui?.hero_tagline ||
+    settings.site_tagline ||
+    "";
+
+  const defaultPhrases = useMemo(
+    () => [
+      "AI Autonomous Systems Architect",
+      "Distributed Cloud & Data Infrastructure",
+      "Full-Stack Engineering & Tooling",
+      "High-Performance Edge Computing",
+      "Next-Gen Digital Workforce",
+    ],
+    [],
+  );
+
+  const phrases = useMemo(() => {
+    const custom =
+      settings.ui?.hero_stacks ||
+      settings.ui?.hero_typing_phrases ||
+      settings.hero_stacks;
+    if (Array.isArray(custom) && custom.filter(Boolean).length > 0) {
+      return custom.map((s) => String(s).trim()).filter(Boolean);
+    }
+    if (typeof custom === "string" && custom.trim()) {
+      return custom.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    }
+    return defaultPhrases;
+  }, [settings, defaultPhrases]);
 
   useEffect(() => {
-    const typeSpeed = isDeleting ? 50 : 100;
-    const currentPhrase = phrases[currentIndex];
+    if (!phrases.length) return;
+    const typeSpeed = isDeleting ? 45 : 95;
+    const currentPhrase = phrases[currentIndex % phrases.length];
     
     const timeout = setTimeout(() => {
       if (!isDeleting && typedText === currentPhrase) {
@@ -126,25 +155,56 @@ const HeroSection = ({ currentTheme }) => {
       </div>
 
       <div className="max-w-6xl mx-auto text-center relative z-10">
-        {/* Profile Image */}
-        <div className="mt-8 md:mt-16 mb-8 flex justify-center">
-          <div className={`relative w-32 h-32 lg:w-40 lg:h-40 rounded-full overflow-hidden border-4 ${currentTheme === 'light' ? 'border-blue-200' : 'border-primary/50'} hover-glow-primary transition-all duration-normal shadow-glow-primary`}>
-            <Image 
-              src={settings.heroImageUrl || settings.hero_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"}
-              alt="Mikael Kraft - Full Stack Developer"
-              className="w-full h-full object-cover"
+        {/* Same Row: Left Side Trapezoid Image Container + Right Side User Name */}
+        <div className="mt-8 md:mt-16 mb-8 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 max-w-4xl mx-auto">
+          {/* Trapezoid Image Container */}
+          <div className="relative group flex-shrink-0">
+            {/* Outer ambient glow conforming to trapezoid geometry */}
+            <div
+              className="absolute -inset-1.5 bg-gradient-to-r from-primary via-cyan-400 to-secondary opacity-70 blur-md group-hover:opacity-100 transition-opacity"
+              style={{ clipPath: "polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%)" }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
+            {/* Trapezoid Frame with border glow */}
+            <div
+              className={`relative w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 p-[3px] bg-gradient-to-r from-primary via-cyan-400 to-primary/60 shadow-glow-primary transition-all duration-300 group-hover:scale-105 ${
+                currentTheme === "light" ? "border-blue-400" : ""
+              }`}
+              style={{ clipPath: "polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%)" }}
+            >
+              {/* Inner clipped image */}
+              <div
+                className="w-full h-full bg-surface overflow-hidden relative"
+                style={{ clipPath: "polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%)" }}
+              >
+                <Image
+                  src={
+                    settings.heroImageUrl ||
+                    settings.hero_image_url ||
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+                  }
+                  alt={`${heroName} - Digital Portfolio`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/25 via-transparent to-transparent pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {/* User Name in same row */}
+          <div className="text-center sm:text-left">
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight flex items-center justify-center sm:justify-start flex-wrap gap-x-3 text-primary">
+              <span className="text-primary opacity-90 select-none font-mono">//</span>
+              <span className="text-primary drop-shadow-[0_0_24px_var(--color-primary)]">
+                {heroName}
+              </span>
+            </h1>
+            {heroTagline && (
+              <p className="text-xs sm:text-sm font-mono text-cyan-400/90 tracking-widest uppercase mt-1 pl-1">
+                {heroTagline}
+              </p>
+            )}
           </div>
         </div>
-
-        {/* Main Heading */}
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 tracking-tight flex items-center justify-center flex-wrap gap-x-3 text-primary">
-          <span className="text-primary opacity-90 select-none font-mono">//</span>
-          <span className="text-primary drop-shadow-[0_0_24px_var(--color-primary)]">
-            Mikael Kraft
-          </span>
-        </h1>
 
         {/* Typing Animation */}
         <div className="mb-8 h-16 flex items-center justify-center">
@@ -156,15 +216,23 @@ const HeroSection = ({ currentTheme }) => {
 
         {/* Description */}
         <div className={`max-w-4xl mx-auto mb-12 space-y-4 ${textColors.secondary}`}>
-          <p className="text-lg lg:text-xl leading-relaxed">
-            Crafting exceptional web applications with React and Node.js.
-            I focus on building scalable, performant solutions that deliver 
-            outstanding user experiences through modern JavaScript technologies.
-          </p>
-          <p className="text-base lg:text-lg">
-            From interactive React frontends to robust Node.js backends, I create 
-            full-stack applications that seamlessly connect users with technology.
-          </p>
+          {settings.ui?.hero_description || settings.site_description ? (
+            <p className="text-lg lg:text-xl leading-relaxed">
+              {settings.ui?.hero_description || settings.site_description}
+            </p>
+          ) : (
+            <>
+              <p className="text-lg lg:text-xl leading-relaxed">
+                Crafting exceptional autonomous applications and high-performance digital architectures.
+                Focused on building scalable, performant systems that deliver 
+                outstanding user experiences through modern engineering practices.
+              </p>
+              <p className="text-base lg:text-lg">
+                From responsive client interfaces to robust cloud backends and agent workflows, I create 
+                full-stack solutions that seamlessly connect users with technology.
+              </p>
+            </>
+          )}
         </div>
 
         {/* CTA Buttons */}

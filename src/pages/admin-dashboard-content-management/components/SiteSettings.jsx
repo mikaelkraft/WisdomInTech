@@ -434,7 +434,7 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
         </div>
 
         {/* Hero Video Background */}
-        <div>
+        <div className="mb-6">
           <label className="block text-sm font-medium text-text-primary mb-2 flex items-center gap-2">
             <Icon name="Video" size={16} className="text-primary" />
             Hero Background Video (optional)
@@ -451,6 +451,86 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
             pathPrefix="videos"
             accept="video"
             helperText="Accepted: mp4, webm, ogg. Autoplay is muted."
+          />
+        </div>
+
+        {/* Hero Display Name (Shown next to Trapezoid Image) */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-text-primary mb-1">
+            Hero Display Name
+          </label>
+          <div className="text-xs text-text-secondary font-caption mb-2">
+            The primary name displayed on the left-aligned hero row next to the trapezoid image (e.g. // Mikael Kraft).
+          </div>
+          <Input
+            value={localSettings.ui?.hero_name ?? localSettings.site_title ?? "Mikael Kraft"}
+            onChange={(e) => handleUiSettingChange("hero_name", e.target.value)}
+            placeholder="e.g. Mikael Kraft"
+            className="w-full text-sm"
+          />
+        </div>
+
+        {/* Hero Subtitle / Tagline */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-text-primary mb-1">
+            Hero Tagline / Subtitle
+          </label>
+          <Input
+            value={localSettings.ui?.hero_tagline ?? localSettings.site_tagline ?? ""}
+            onChange={(e) => handleUiSettingChange("hero_tagline", e.target.value)}
+            placeholder="e.g. Autonomous Engineering & Full-Stack Systems"
+            className="w-full text-sm"
+          />
+        </div>
+
+        {/* Sliding Hero Texts (Best Stacks & Specializations) */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-text-primary mb-1 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Icon name="Sliders" size={16} className="text-primary" />
+              Sliding Hero Stacks & Specializations (One per line)
+            </span>
+            <span className="text-xs text-primary font-mono font-semibold">Active in Typing Carousel</span>
+          </label>
+          <div className="text-xs text-text-secondary font-caption mb-2">
+            Choose and write the top tech stacks, roles, or specializations that rotate across the hero typing animation.
+          </div>
+          <textarea
+            rows={5}
+            value={
+              Array.isArray(localSettings.ui?.hero_stacks)
+                ? localSettings.ui.hero_stacks.join("\n")
+                : typeof localSettings.ui?.hero_stacks === "string"
+                ? localSettings.ui.hero_stacks
+                : "AI Autonomous Systems Architect\nDistributed Cloud & Data Infrastructure\nFull-Stack Engineering & Tooling\nHigh-Performance Edge Computing\nNext-Gen Digital Workforce"
+            }
+            onChange={(e) => {
+              const lines = e.target.value.split("\n");
+              handleUiSettingChange("hero_stacks", lines);
+            }}
+            className="w-full bg-surface border border-border-accent/30 rounded-xl p-3 text-sm text-text-primary font-mono focus:border-primary focus:outline-none"
+            placeholder="Enter one stack or specialization per line..."
+          />
+        </div>
+
+        {/* Hero Overview Description */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-text-primary mb-1">
+            Hero Overview Paragraph
+          </label>
+          <div className="text-xs text-text-secondary font-caption mb-2">
+            The narrative description shown directly below the rotating stacks.
+          </div>
+          <textarea
+            rows={3}
+            value={
+              localSettings.ui?.hero_description ??
+              localSettings.site_description ??
+              "Crafting exceptional autonomous applications and high-performance digital architectures. Dedicated to building scalable, performant systems that deliver outstanding user experiences through next-generation technologies."
+            }
+            onChange={(e) => handleUiSettingChange("hero_description", e.target.value)}
+            className="w-full bg-surface border border-border-accent/30 rounded-xl p-3 text-sm text-text-primary focus:border-primary focus:outline-none"
+            placeholder="Write your portfolio introduction..."
           />
         </div>
       </div>
