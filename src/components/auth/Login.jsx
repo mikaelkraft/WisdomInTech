@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../contexts/ToastContext";
 import { isAdminEmail } from "../../utils/authService";
+import { useFeature } from "../../hooks/useFeature";
 import {
   LogIn,
   UserPlus,
@@ -13,6 +14,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Github,
+  Linkedin,
   ShieldCheck,
 } from "lucide-react";
 import Button from "../ui/Button.jsx";
@@ -39,6 +41,30 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const DiscordIcon = () => (
+  <svg className="w-5 h-5 flex-shrink-0 fill-current" viewBox="0 0 24 24">
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+  </svg>
+);
+
+const XIcon = () => (
+  <svg className="w-5 h-5 flex-shrink-0 fill-current" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const GitLabIcon = () => (
+  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+    <path fill="#E24329" d="m12 21.42 4.15-12.78H7.85z" />
+    <path fill="#FC6D26" d="M12 21.42 7.85 8.64H1.67z" />
+    <path fill="#FCA326" d="m1.67 8.64 6.18 12.78-4.81-3.5a1.05 1.05 0 0 1-.37-.93z" />
+    <path fill="#E24329" d="m1.67 8.64 2.29-7.05a.53.53 0 0 1 1 0l2.89 7.05z" />
+    <path fill="#FC6D26" d="M12 21.42l4.15-12.78h6.18z" />
+    <path fill="#FCA326" d="m22.33 8.64-6.18 12.78 4.81-3.5a1.05 1.05 0 0 0 .37-.93z" />
+    <path fill="#E24329" d="m22.33 8.64-2.29-7.05a.53.53 0 0 0-1 0l-2.89 7.05z" />
+  </svg>
+);
+
 const Login = ({ onClose, onSuccess, defaultMode = "password" }) => {
   // mode: 'password' | 'otp' | 'signup' | 'forgot'
   const [mode, setMode] = useState(defaultMode);
@@ -56,6 +82,59 @@ const Login = ({ onClose, onSuccess, defaultMode = "password" }) => {
     useAuth();
   const { show: showToast } = useToast();
   const navigate = useNavigate();
+
+  // Admin-toggled OAuth Providers (from Neon feature flags / site settings)
+  const googleEnabled = useFeature("auth_google", true);
+  const githubEnabled = useFeature("auth_github", true);
+  const discordEnabled = useFeature("auth_discord", false);
+  const twitterEnabled = useFeature("auth_twitter", false);
+  const linkedinEnabled = useFeature("auth_linkedin", false);
+  const gitlabEnabled = useFeature("auth_gitlab", false);
+
+  const activeProviders = [
+    googleEnabled && {
+      id: "google",
+      name: "Google",
+      icon: <GoogleIcon />,
+      className:
+        "bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 font-medium",
+    },
+    githubEnabled && {
+      id: "github",
+      name: "GitHub",
+      icon: <Github className="w-5 h-5 flex-shrink-0" />,
+      className:
+        "bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 font-medium",
+    },
+    discordEnabled && {
+      id: "discord",
+      name: "Discord",
+      icon: <DiscordIcon />,
+      className:
+        "bg-[#5865F2] hover:bg-[#4752C4] text-white border border-[#4752C4] font-medium",
+    },
+    twitterEnabled && {
+      id: "twitter",
+      name: "X (Twitter)",
+      icon: <XIcon />,
+      className:
+        "bg-black hover:bg-neutral-900 text-white border border-neutral-700 font-medium",
+    },
+    linkedinEnabled && {
+      id: "linkedin_oidc",
+      name: "LinkedIn",
+      icon: <Linkedin className="w-5 h-5 flex-shrink-0 text-[#0A66C2]" />,
+      className:
+        "bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 font-medium",
+    },
+    gitlabEnabled && {
+      id: "gitlab",
+      name: "GitLab",
+      icon: <GitLabIcon />,
+      className:
+        "bg-[#FC6D26] hover:bg-[#E24329] text-white border border-[#E24329] font-medium",
+    },
+  ].filter(Boolean);
 
   const isAdminTarget = isAdminEmail(email);
 
@@ -253,38 +332,41 @@ const Login = ({ onClose, onSuccess, defaultMode = "password" }) => {
           </div>
         )}
 
-        {/* OAuth Buttons (Only on password, otp, or signup modes) */}
-        {mode !== "forgot" && (
-          <div className="space-y-2.5 mb-5">
-            <Button
-              onClick={() => handleOAuthSignIn("google")}
-              disabled={oauthLoading === "google" || isLoading}
-              className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 font-medium active:scale-95 transition-all duration-200"
-              iconPosition="left"
+        {/* OAuth Buttons (Only when enabled by admin and in non-forgot modes) */}
+        {mode !== "forgot" && activeProviders.length > 0 && (
+          <div className="mb-5">
+            <div
+              className={
+                activeProviders.length > 2
+                  ? "grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+                  : "space-y-2.5"
+              }
             >
-              {oauthLoading === "google" ? (
-                <div className="w-5 h-5 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900" />
-              ) : (
-                <GoogleIcon />
-              )}
-              {oauthLoading === "google" ? "Connecting..." : "Continue with Google"}
-            </Button>
+              {activeProviders.map((provider) => (
+                <Button
+                  key={provider.id}
+                  onClick={() => handleOAuthSignIn(provider.id)}
+                  disabled={oauthLoading === provider.id || isLoading}
+                  className={`w-full active:scale-95 transition-all duration-200 ${provider.className}`}
+                  iconPosition="left"
+                >
+                  {oauthLoading === provider.id ? (
+                    <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    provider.icon
+                  )}
+                  <span className="truncate">
+                    {oauthLoading === provider.id
+                      ? "Connecting..."
+                      : activeProviders.length > 2
+                      ? provider.name
+                      : `Continue with ${provider.name}`}
+                  </span>
+                </Button>
+              ))}
+            </div>
 
-            <Button
-              onClick={() => handleOAuthSignIn("github")}
-              disabled={oauthLoading === "github" || isLoading}
-              className="w-full bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 font-medium active:scale-95 transition-all duration-200"
-              iconPosition="left"
-            >
-              {oauthLoading === "github" ? (
-                <div className="w-5 h-5 animate-spin rounded-full border-2 border-gray-500 border-t-white" />
-              ) : (
-                <Github className="w-5 h-5" />
-              )}
-              {oauthLoading === "github" ? "Connecting..." : "Continue with GitHub"}
-            </Button>
-
-            <div className="relative py-2">
+            <div className="relative py-2.5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-border-accent/30" />
               </div>

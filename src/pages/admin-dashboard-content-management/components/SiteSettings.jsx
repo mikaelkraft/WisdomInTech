@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Input from "../../../components/ui/Input.jsx";
 import Icon from "../../../components/AppIcon.jsx";
 import FileUpload from "../../../components/ui/FileUpload.jsx";
@@ -9,10 +9,58 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
   const [localSettings, setLocalSettings] = useState(settings);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Auth Provider Feature Flags State
+  const [authFlags, setAuthFlags] = useState({
+    auth_google: true,
+    auth_github: true,
+    auth_discord: false,
+    auth_twitter: false,
+    auth_linkedin: false,
+    auth_gitlab: false,
+  });
+  const [savingAuthFlag, setSavingAuthFlag] = useState(null);
+
+  useEffect(() => {
+    fetch((import.meta.env.VITE_API_BASE_URL || "/api") + "/settings/features")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => {
+        const next = {};
+        rows.forEach((r) => {
+          const k = r.flagKey || r.flag_key;
+          if (k && k.startsWith("auth_")) {
+            next[k] = !!r.enabled;
+          }
+        });
+        setAuthFlags((prev) => ({ ...prev, ...next }));
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleAuthFlag = async (key) => {
+    const nextVal = !authFlags[key];
+    setSavingAuthFlag(key);
+    setAuthFlags((prev) => ({ ...prev, [key]: nextVal }));
+    try {
+      await fetch(
+        (import.meta.env.VITE_API_BASE_URL || "/api") + "/settings/features",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, enabled: nextVal }),
+        }
+      );
+    } catch (e) {
+      console.warn("Failed to save auth flag:", e);
+    } finally {
+      setSavingAuthFlag(null);
+    }
+  };
+
   const tabs = [
     { id: "general", label: "General", icon: "Settings" },
     { id: "appearance", label: "Appearance", icon: "Palette" },
     { id: "content", label: "Content", icon: "FileText" },
+    { id: "auth", label: "Auth Providers", icon: "Shield" },
     { id: "tech", label: "Tech Stack", icon: "Cpu" },
     { id: "social", label: "Social Media", icon: "Share2" },
     { id: "seo", label: "SEO", icon: "Search" },
@@ -1253,6 +1301,126 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
     </div>
   );
 
+  const renderAuthProvidersSettings = () => {
+    const providersList = [
+      {
+        key: "auth_google",
+        name: "Google OAuth",
+        desc: "Allow one-click sign in with Google accounts.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-google",
+      },
+      {
+        key: "auth_github",
+        name: "GitHub OAuth",
+        desc: "Allow one-click sign in with GitHub developer accounts.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-github",
+      },
+      {
+        key: "auth_discord",
+        name: "Discord OAuth",
+        desc: "Allow community members to sign in with their Discord identity.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-discord",
+      },
+      {
+        key: "auth_twitter",
+        name: "X (Twitter) OAuth",
+        desc: "Allow users to authenticate with their X / Twitter profile.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-twitter",
+      },
+      {
+        key: "auth_linkedin",
+        name: "LinkedIn OAuth",
+        desc: "Allow professional connections to sign in with LinkedIn.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-linkedin",
+      },
+      {
+        key: "auth_gitlab",
+        name: "GitLab OAuth",
+        desc: "Allow open-source developers to sign in with GitLab.",
+        docUrl: "https://supabase.com/docs/guides/auth/social-login/auth-gitlab",
+      },
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-heading font-semibold text-text-primary mb-1">
+            Third-Party Auth Providers
+          </h3>
+          <p className="text-sm text-text-secondary">
+            Toggle which third-party OAuth providers are actively displayed on the
+            public login &amp; registration screen. Providers toggled off will remain
+            hidden until activated.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {providersList.map((p) => {
+            const isEnabled = !!authFlags[p.key];
+            const isSaving = savingAuthFlag === p.key;
+
+            return (
+              <div
+                key={p.key}
+                className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
+                  isEnabled
+                    ? "bg-primary/5 border-primary/40 shadow-glow-primary/20"
+                    : "bg-surface border-border-accent/20 opacity-80"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-heading font-medium text-text-primary text-base">
+                      {p.name}
+                    </span>
+                    <span
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+                        isEnabled
+                          ? "bg-success/20 text-success border border-success/30"
+                          : "bg-text-secondary/10 text-text-secondary border border-border-accent/20"
+                      }`}
+                    >
+                      {isEnabled ? "Active on Login" : "Hidden"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-secondary mb-4 leading-relaxed">
+                    {p.desc}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-border-accent/10">
+                  <a
+                    href={p.docUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    Supabase Setup Docs &rarr;
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleAuthFlag(p.key)}
+                    disabled={isSaving}
+                    aria-label={`Toggle ${p.name}`}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      isEnabled ? "bg-primary" : "bg-neutral-700"
+                    } ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        isEnabled ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -1307,6 +1475,7 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
           {activeTab === "general" && renderGeneralSettings()}
           {activeTab === "appearance" && renderAppearanceSettings()}
           {activeTab === "content" && renderContentSettings()}
+          {activeTab === "auth" && renderAuthProvidersSettings()}
           {activeTab === "tech" && renderTechStackSettings()}
           {activeTab === "social" && renderSocialSettings()}
           {activeTab === "seo" && renderSEOSettings()}

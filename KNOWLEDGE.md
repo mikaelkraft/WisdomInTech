@@ -155,3 +155,15 @@
   - Other registering users are assigned `role = 'member'` in Neon for collaborative project tracking.
   - Purged old dev passcode and custom token workarounds from `authService.js`, `backend/_lib/auth.js`, `src/utils/api/client.js`, and `.env` / `.env.example`.
 - Verified 0 ESLint errors across all auth and API files.
+
+### Admin-Toggled Auth Providers Implementation
+- Added multi-provider OAuth support for: Google, GitHub, Discord, Twitter / X, LinkedIn, and GitLab.
+- Seeded feature flags in Neon (`wisdomintech.feature_flags`): `auth_google`, `auth_github`, `auth_discord`, `auth_twitter`, `auth_linkedin`, `auth_gitlab` via `scripts/seed-auth-flags.js`.
+- Added **"Auth Providers"** management tab to `SiteSettings.jsx` in the admin dashboard:
+  - Admin can toggle any provider ON or OFF with immediate persistence to Neon PostgreSQL via `/api/settings/features`.
+  - Visual status pill indicates "Active on Login" vs "Hidden".
+  - Links to Supabase setup guides for each provider.
+- Updated `Login.jsx`:
+  - Dynamically renders only the OAuth buttons that are currently toggled ON by the admin via `useFeature`.
+  - Responsive adaptive layout (full width for 1-2 providers, clean 2-column grid for 3+ providers).
+- Verified 0 ESLint errors/warnings.
