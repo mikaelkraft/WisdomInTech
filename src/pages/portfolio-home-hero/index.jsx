@@ -114,6 +114,9 @@ const PortfolioHomeHero = () => {
           {/* Hero Section */}
           <HeroSection currentTheme={currentTheme} />
 
+          {/* System & Visitor Information Panel (Positioned directly below Hero) */}
+          <VisitorInfoPanel currentTheme={currentTheme} />
+
           {/* Project Carousel */}
           <ProjectCarousel currentTheme={currentTheme} />
 
@@ -128,9 +131,6 @@ const PortfolioHomeHero = () => {
 
           {/* Newsletter Subscription */}
           <NewsletterSubscription currentTheme={currentTheme} />
-
-          {/* Visitor Information Panel */}
-          <VisitorInfoPanel currentTheme={currentTheme} />
 
           {/* Social Media Grid */}
           <SocialMediaGrid currentTheme={currentTheme} />

@@ -243,3 +243,13 @@
     4. Hero Overview Description Paragraph
   - Seeded initial hero stacks and name into Neon `site_settings.ui`.
 - **Code Quality**: Verified clean ESLint check (0 errors, 0 warnings).
+
+### System Info Section: Relocation & Compact Typography
+- **Positioned Directly Below Hero**:
+  - Relocated `<VisitorInfoPanel />` in [`src/pages/portfolio-home-hero/index.jsx`](file:///c:/Users/HP/OneDrive/Documents/Mikael%20kraft/mkraft/src/pages/portfolio-home-hero/index.jsx) from the bottom of the page to directly beneath `<HeroSection />`.
+- **Compact HUD Typography & Condensed Layout (`VisitorInfoPanel.jsx`)**:
+  - Reduced section padding from `py-20` to `py-6 sm:py-8` to form a cohesive, unified status bar below the hero.
+  - Converted the oversized header to a sleek, mono telemetry status banner (`// Live System Telemetry & Visitor Session`) with pulsing live indicator and live clock.
+  - Reduced text sizes across all quick stats (IP Address, CPU/RAM, Viewport, Network) from `text-lg` to `text-xs font-mono font-semibold` and `text-[10px]` uppercase labels.
+  - Added compact expandable drawer for detailed hardware and network metrics with clean micro-cards.
+- **Code Quality**: Verified clean ESLint check (0 errors, 0 warnings).
