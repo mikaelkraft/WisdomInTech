@@ -264,8 +264,16 @@ class SettingsService {
         site_tagline: "Neo-Cyberpunk Experience",
         site_description:
           "A futuristic portfolio showcasing cutting-edge development work and innovative solutions for the digital future.",
-        contact_email: "mikewillkraft@gmail.com",
-        admin_email: "admin@wisdomintech.dev",
+        contact_email:
+          (typeof import.meta !== "undefined" &&
+            import.meta.env &&
+            (import.meta.env.VITE_CONTACT_EMAIL || import.meta.env.VITE_ADMIN_EMAIL)) ||
+          "",
+        admin_email:
+          (typeof import.meta !== "undefined" &&
+            import.meta.env &&
+            (import.meta.env.VITE_ADMIN_EMAIL || import.meta.env.ADMIN_EMAIL)) ||
+          "",
         enable_video: true,
         default_theme: "cyberpunk",
         default_font_size: "medium",
@@ -278,7 +286,11 @@ class SettingsService {
           twitter: "mikael_kraft",
           linkedin: "in/mikael-kraft",
           github: "mikaelkraft",
-          email: "mikewillkraft@gmail.com",
+          email:
+            (typeof import.meta !== "undefined" &&
+              import.meta.env &&
+              (import.meta.env.VITE_CONTACT_EMAIL || import.meta.env.VITE_ADMIN_EMAIL)) ||
+            "",
         },
         seo_settings: {
           keywords:

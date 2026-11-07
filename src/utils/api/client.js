@@ -4,16 +4,21 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function getAuthHeader() {
   try {
-    if (
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("dev_admin") === "true"
-    ) {
-      return { Authorization: "Bearer dev-admin-token" };
-    }
     const { data } = await supabase.auth.getSession();
     const token = data?.session?.access_token;
     if (token) {
       return { Authorization: `Bearer ${token}` };
+    }
+    const devToken =
+      typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      import.meta.env.VITE_DEV_ADMIN_TOKEN;
+    if (
+      devToken &&
+      typeof window !== "undefined" &&
+      window.localStorage.getItem("dev_admin") === "true"
+    ) {
+      return { Authorization: `Bearer ${devToken}` };
     }
   } catch {}
   return {};

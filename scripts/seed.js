@@ -25,7 +25,11 @@ const crypto = require('crypto');
   const pool = new Pool({ connectionString, ssl });
   const client = await pool.connect();
   try {
-    const email = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL || 'admin@example.com';
+    const email = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL;
+    if (!email) {
+      console.error('ADMIN_EMAIL (or VITE_ADMIN_EMAIL) env var is required for seeding.');
+      process.exit(1);
+    }
     const userId = crypto.randomUUID();
 
     // Ensure schema exists

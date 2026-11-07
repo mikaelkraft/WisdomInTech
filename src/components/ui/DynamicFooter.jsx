@@ -65,7 +65,20 @@ const DynamicFooter = ({ currentTheme }) => {
         { name: "X (Twitter)", href: "https://x.com/mikael_kraft", external: true },
         { name: "LinkedIn", href: "https://linkedin.com/in/mikael-kraft", external: true },
         { name: "GitHub", href: "https://github.com/mikaelkraft", external: true },
-        { name: "Email", href: "mailto:mikewillkraft@gmail.com", external: true },
+        {
+          name: "Email",
+          href:
+            typeof import.meta !== "undefined" &&
+            import.meta.env &&
+            (import.meta.env.VITE_CONTACT_EMAIL || import.meta.env.VITE_ADMIN_EMAIL)
+              ? `mailto:${import.meta.env.VITE_CONTACT_EMAIL || import.meta.env.VITE_ADMIN_EMAIL}`
+              : "/#contact",
+          external: !!(
+            typeof import.meta !== "undefined" &&
+            import.meta.env &&
+            (import.meta.env.VITE_CONTACT_EMAIL || import.meta.env.VITE_ADMIN_EMAIL)
+          ),
+        },
       ],
     },
     {

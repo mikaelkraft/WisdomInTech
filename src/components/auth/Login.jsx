@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../contexts/ToastContext";
-import { ADMIN_EMAIL, isAdminEmail } from "../../utils/authService";
+import { isAdminEmail } from "../../utils/authService";
 import {
   LogIn,
   UserPlus,
@@ -42,7 +42,7 @@ const GoogleIcon = () => (
 const Login = ({ onClose, onSuccess, defaultMode = "password" }) => {
   // mode: 'password' | 'otp' | 'signup' | 'forgot'
   const [mode, setMode] = useState(defaultMode);
-  const [email, setEmail] = useState(ADMIN_EMAIL);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [otpCode, setOtpCode] = useState("");

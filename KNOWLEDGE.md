@@ -119,3 +119,19 @@
    - `src/utils/api/client.js` now automatically attaches `Authorization: Bearer <token>` from active Supabase sessions or local admin tokens on all API requests.
 5. **Code Quality**:
    - ESLint verified across all modified authentication components with 0 errors.
+
+### Security Hardening: Elimination of Exposed Secrets & Fallbacks
+1. **Zero Hardcoded Passcodes / Secrets**:
+   - Removed all hardcoded dev passcodes (`admin123`, `cyberkraft`, `admin`) from `src/utils/authService.js`.
+   - Any dev passcode must now be explicitly defined in `.env` (`VITE_DEV_ADMIN_PASSCODE`); without this variable in the environment, no fallback passcode is accepted.
+2. **Zero Exposed Fallback Emails**:
+   - Removed hardcoded admin email strings from `src/utils/authService.js`, `backend/_lib/auth.js`, `src/utils/settingsService.js`, `scripts/seed.js`, and `src/components/ui/DynamicFooter.jsx`.
+   - All admin email privileges and contact addresses are strictly sensed from `VITE_ADMIN_EMAIL` / `ADMIN_EMAIL` / `VITE_CONTACT_EMAIL` in `.env`. If not configured, no admin user is inferred.
+3. **Hardened API Authorization**:
+   - Removed exposed `"dev-admin-token"` from `backend/_lib/auth.js` and `src/utils/api/client.js`.
+   - Backend `verifyAuth` accepts a dev admin token only when explicitly configured via `process.env.DEV_ADMIN_TOKEN`.
+   - `client.js` only transmits tokens from active Supabase sessions or an explicitly configured `VITE_DEV_ADMIN_TOKEN`.
+4. **Login UI Neutrality**:
+   - Removed auto-prefilled admin email in `Login.jsx` to prevent leaking the administrator's email address to multi-user visitors.
+5. **Code Quality Verification**:
+   - ESLint verified across all modified files with 0 errors and 0 warnings.

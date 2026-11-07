@@ -5,14 +5,15 @@ export const getAdminEmails = () => {
     (typeof import.meta !== "undefined" &&
       import.meta.env &&
       (import.meta.env.VITE_ADMIN_EMAIL || import.meta.env.ADMIN_EMAIL)) ||
-    "mikewillkraft@gmail.com";
+    "";
+  if (!envAdmins) return [];
   return envAdmins
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
 };
 
-export const ADMIN_EMAIL = getAdminEmails()[0] || "mikewillkraft@gmail.com";
+export const ADMIN_EMAIL = getAdminEmails()[0] || "";
 
 export const isAdminEmail = (email) => {
   if (!email) return false;
@@ -52,20 +53,35 @@ class AuthService {
       });
 
       if (error) {
-        // Fallback admin passcode verification
+        // Dev passcode fallback strictly from environment variable, never hardcoded
+        const configuredDevPasscode =
+          typeof import.meta !== "undefined" &&
+          import.meta.env &&
+          import.meta.env.VITE_DEV_ADMIN_PASSCODE;
+
         if (
+          configuredDevPasscode &&
           isAdminEmail(normalizedEmail) &&
-          (password === "admin123" || password === "admin" || password === "cyberkraft")
+          password === configuredDevPasscode
         ) {
+          const devUserId =
+            (import.meta.env && import.meta.env.VITE_DEV_ADMIN_USER_ID) ||
+            "admin-dev-user";
           if (typeof window !== "undefined") {
             window.localStorage.setItem("dev_admin", "true");
             window.localStorage.setItem("dev_admin_email", normalizedEmail);
+            if (import.meta.env && import.meta.env.VITE_DEV_ADMIN_TOKEN) {
+              window.localStorage.setItem(
+                "dev_admin_token",
+                import.meta.env.VITE_DEV_ADMIN_TOKEN,
+              );
+            }
           }
           return {
             success: true,
             data: {
               user: {
-                id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
+                id: devUserId,
                 email: normalizedEmail,
                 role: "admin",
               },
@@ -95,26 +111,6 @@ class AuthService {
         },
       };
     } catch (error) {
-      const normalizedEmail = (email || "").trim().toLowerCase();
-      if (
-        isAdminEmail(normalizedEmail) &&
-        (password === "admin123" || password === "admin" || password === "cyberkraft")
-      ) {
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("dev_admin", "true");
-          window.localStorage.setItem("dev_admin_email", normalizedEmail);
-        }
-        return {
-          success: true,
-          data: {
-            user: {
-              id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-              email: normalizedEmail,
-              role: "admin",
-            },
-          },
-        };
-      }
       return {
         success: false,
         error: error?.message || "An unexpected error occurred during sign in",
@@ -472,18 +468,24 @@ class AuthService {
   // Check if current user is admin
   async isAdmin() {
     try {
-      if (
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        return true;
-      }
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
+        const configuredDevToken =
+          typeof import.meta !== "undefined" &&
+          import.meta.env &&
+          import.meta.env.VITE_DEV_ADMIN_TOKEN;
+        if (
+          configuredDevToken &&
+          typeof window !== "undefined" &&
+          window.localStorage.getItem("dev_admin") === "true" &&
+          window.localStorage.getItem("dev_admin_token") === configuredDevToken
+        ) {
+          const storedEmail = window.localStorage.getItem("dev_admin_email");
+          return isAdminEmail(storedEmail);
+        }
         return false;
       }
 

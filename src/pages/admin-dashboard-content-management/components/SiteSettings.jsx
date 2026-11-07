@@ -884,7 +884,7 @@ const SiteSettings = ({ settings, onSettingsUpdate }) => {
                 email: e.target.value,
               })
             }
-            placeholder="mikewillkraft@gmail.com"
+            placeholder="you@example.com"
           />
         </div>
       </div>

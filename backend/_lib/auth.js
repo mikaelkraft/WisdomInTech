@@ -41,18 +41,19 @@ async function verifyAuth(req) {
     if (!auth || !auth.startsWith("Bearer ")) return { user: null };
     const token = auth.slice(7).trim();
 
-    // Dev admin token fallback
-    if (token === "dev-admin-token") {
+    // Dev admin token verified ONLY if explicitly configured in server environment
+    const configuredDevToken = process.env.DEV_ADMIN_TOKEN;
+    if (configuredDevToken && token === configuredDevToken) {
       const adminEmail =
-        process.env.ADMIN_EMAIL ||
-        process.env.VITE_ADMIN_EMAIL ||
-        "mikewillkraft@gmail.com";
-      return {
-        user: {
-          id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-          email: adminEmail,
-        },
-      };
+        process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL;
+      if (adminEmail) {
+        return {
+          user: {
+            id: process.env.DEV_ADMIN_USER_ID || "admin",
+            email: adminEmail.split(",")[0].trim(),
+          },
+        };
+      }
     }
 
     const user = await fetchSupabaseUser(token);
@@ -79,11 +80,17 @@ async function getUserWithRole(req) {
     const rawAdminEmails = (
       process.env.ADMIN_EMAIL ||
       process.env.VITE_ADMIN_EMAIL ||
-      "mikewillkraft@gmail.com"
+      ""
     ).toLowerCase();
-    const adminEmails = rawAdminEmails.split(",").map((e) => e.trim());
+    const adminEmails = rawAdminEmails
+      ? rawAdminEmails
+          .split(",")
+          .map((e) => e.trim())
+          .filter(Boolean)
+      : [];
     const userEmail = (user.email || "").toLowerCase();
-    const isConfiguredAdmin = adminEmails.includes(userEmail);
+    const isConfiguredAdmin =
+      adminEmails.length > 0 && adminEmails.includes(userEmail);
 
     // Auto-promote configured admin email for backward compatibility and env-sensed rights
     if (isConfiguredAdmin && role !== "admin") {
