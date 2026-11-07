@@ -167,3 +167,29 @@
   - Dynamically renders only the OAuth buttons that are currently toggled ON by the admin via `useFeature`.
   - Responsive adaptive layout (full width for 1-2 providers, clean 2-column grid for 3+ providers).
 - Verified 0 ESLint errors/warnings.
+
+### External Projects API & Developer API Key System Implementation
+1. **Neon PostgreSQL Database Schema (`db/patch_20261107_api_keys.sql`)**:
+   - Created `wisdomintech.api_keys` table with `id`, `user_id`, `name`, `key_prefix`, `key_hash`, `scopes`, `rate_limit_per_minute`, `is_active`, `last_used_at`, and timestamps.
+   - Applied migration successfully to Neon database.
+2. **Key Management API (`backend/keys/index.js`)**:
+   - `GET /api/keys`: Returns user's active API keys (masked with prefix, e.g. `mk_live_561212...21f4`).
+   - `POST /api/keys`: Generates cryptographically secure `mk_live_<48_hex_chars>`, hashes with SHA-256 for database storage, and returns the full secret once upon creation.
+   - `DELETE /api/keys?id=...`: Revokes/deletes the key for the authenticated owner or admin.
+3. **Headless Cross-Origin Projects Endpoint (`backend/v1/projects.js`)**:
+   - `GET /api/v1/projects`: Full CORS-enabled (`Access-Control-Allow-Origin: *`) endpoint for third-party websites, apps, and portfolios.
+   - Authenticates via header (`x-api-key`, `Authorization: Bearer <key>`) or query parameter (`?apiKey=`).
+   - Resolves key owner, verifies `projects:read` scope, and asynchronously updates `last_used_at`.
+   - Filters projects belonging to the key owner (`status = 'published'`, `deleted_at IS NULL`) with optional query filters (`category`, `tag`, `featured`, `search`, `limit`, `offset`).
+4. **Mounted in `server.js`**:
+   - Mounted `/api/keys` and `/api/v1/projects`.
+5. **Frontend Developer UI & Service**:
+   - Built `src/utils/apiKeyService.js` for key operations.
+   - Built `src/components/projects/DeveloperApiModal.jsx`:
+     - Keys management tab: Key generation, one-time full secret copy alert with copy-to-clipboard button, active keys table with prefix, created date, last used date, and revoke action.
+     - Integration Snippets tab: Ready-to-copy code in JavaScript `fetch()`, cURL, and React drop-in component.
+   - Integrated into `src/pages/projects-portfolio-grid/index.jsx` and `src/pages/admin-dashboard-content-management/components/ProjectsManagement.jsx`.
+6. **Code Quality & Verification**:
+   - Verified 0 ESLint errors/warnings across all new and modified files (`npm run lint` clean).
+   - Removed unused React import in `ThemeContext.jsx`.
+   - Ready for external websites and apps to display live user projects securely.

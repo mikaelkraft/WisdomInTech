@@ -116,6 +116,24 @@ app.all(
   ),
 );
 app.all(
+  "/api/keys",
+  wrap(
+    withTransform(require("./backend/keys/index.js"), {
+      camel: true,
+      cacheSeconds: 0,
+    }),
+  ),
+);
+app.all(
+  "/api/v1/projects",
+  wrap(
+    withTransform(require("./backend/v1/projects.js"), {
+      camel: false,
+      cacheSeconds: 5,
+    }),
+  ),
+);
+app.all(
   "/api/blog",
   wrap(
     withTransform(require("./backend/blog/index.js"), {

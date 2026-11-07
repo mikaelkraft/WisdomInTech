@@ -11,6 +11,8 @@ import ProjectSkeleton from "./components/ProjectSkeleton";
 import projectService from "../../utils/projectService";
 import HeaderNavigation from "../../components/ui/HeaderNavigation";
 import DynamicFooter from "../../components/ui/DynamicFooter";
+import DeveloperApiModal from "../../components/projects/DeveloperApiModal";
+import AuthModal from "../../components/auth/AuthModal";
 
 const ProjectsPortfolioGrid = () => {
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ const ProjectsPortfolioGrid = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -222,6 +226,19 @@ const ProjectsPortfolioGrid = () => {
               themed applications. Each project represents a unique
               challenge and creative solution.
             </p>
+
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                iconName="Code2"
+                iconPosition="left"
+                onClick={() => setIsApiModalOpen(true)}
+                className="border-primary/40 hover:bg-primary/10 text-primary font-medium shadow-glow-primary/20 active:scale-95 transition-all duration-200"
+              >
+                External API &amp; Embeds
+              </Button>
+            </div>
           </div>
 
           {/* Filters */}
@@ -316,6 +333,19 @@ const ProjectsPortfolioGrid = () => {
             setEditingProject(null);
           }}
           onSave={handleSaveProject}
+        />
+
+        {/* Developer API & Embeds Modal */}
+        <DeveloperApiModal
+          isOpen={isApiModalOpen}
+          onClose={() => setIsApiModalOpen(false)}
+          onRequireLogin={() => setIsAuthModalOpen(true)}
+        />
+
+        {/* Auth Modal */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
         />
 
         <DynamicFooter />

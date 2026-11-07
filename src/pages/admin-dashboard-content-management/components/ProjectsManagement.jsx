@@ -5,6 +5,7 @@ import Image from "../../../components/AppImage.jsx";
 import Input from "../../../components/ui/Input.jsx";
 import Icon from "../../../components/AppIcon.jsx";
 import FileUpload from "../../../components/ui/FileUpload.jsx";
+import DeveloperApiModal from "../../../components/projects/DeveloperApiModal.jsx";
 
 const ProjectsManagement = ({
   projects,
@@ -13,6 +14,7 @@ const ProjectsManagement = ({
   onProjectCreate,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isApiModalOpen, setIsApiModalOpen] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [editingProject, setEditingProject] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -305,14 +307,24 @@ const ProjectsManagement = ({
             Manage your portfolio projects and showcase content
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setShowCreateModal(true)}
-          iconName="Plus"
-          iconPosition="left"
-        >
-          New Project
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setIsApiModalOpen(true)}
+            iconName="Code2"
+            iconPosition="left"
+          >
+            Developer API Keys
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+            iconName="Plus"
+            iconPosition="left"
+          >
+            New Project
+          </Button>
+        </div>
       </div>
 
       {/* Filters & Search */}
@@ -857,6 +869,12 @@ const ProjectsManagement = ({
           </div>
         </Modal>
       )}
+
+      {/* Developer API Keys Modal */}
+      <DeveloperApiModal
+        isOpen={isApiModalOpen}
+        onClose={() => setIsApiModalOpen(false)}
+      />
     </div>
   );
 };
