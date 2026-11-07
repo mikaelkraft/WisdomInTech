@@ -9,6 +9,9 @@ import BlogPost from "./pages/blog-post";
 import Documentation from "./pages/documentation";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import RequireAdmin from "./components/auth/RequireAdmin.jsx";
+import RequireAuth from "./components/auth/RequireAuth.jsx";
+import CreatorShowcase from "./pages/creator-showcase";
+import UserWorkspace from "./pages/user-workspace";
 import AdminDashboardContentManagement from "./pages/admin-dashboard-content-management";
 import FeatureFlagsPage from "./pages/admin-dashboard-content-management/FeatureFlags.jsx";
 import NotFound from "./pages/NotFound.jsx";
@@ -44,6 +47,20 @@ const Routes = () => {
 
         {/* Auth */}
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Creator Showcase */}
+        <Route path="/u/:username" element={<CreatorShowcase />} />
+        <Route path="/@:username" element={<CreatorShowcase />} />
+
+        {/* User Workspace & Collaboration Console */}
+        <Route
+          path="/workspace"
+          element={
+            <RequireAuth>
+              <UserWorkspace />
+            </RequireAuth>
+          }
+        />
 
         {/* Admin */}
         <Route

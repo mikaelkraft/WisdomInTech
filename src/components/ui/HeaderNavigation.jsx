@@ -35,21 +35,23 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
   };
 
   const navigationItems = [
-    { label: "Home",     path: "/",        icon: "Home",       tooltip: "Portfolio home" },
-    { label: "Projects", path: "/projects", icon: "FolderOpen", tooltip: "Browse projects" },
-    { label: "Blog",     path: "/blog",     icon: "BookOpen",   tooltip: "Read blog posts" },
-    { label: "Docs",     path: "/docs",     icon: "FileText",   tooltip: "Documentation" },
-    { label: "Admin",    path: "/admin",    icon: "Settings",   tooltip: "Admin dashboard", adminOnly: true },
+    { label: "Home",      path: "/",          icon: "Home",       tooltip: "Portfolio home" },
+    { label: "Projects",  path: "/projects",  icon: "FolderOpen", tooltip: "Browse projects" },
+    { label: "Workspace", path: "/workspace", icon: "Layout",     tooltip: "Project workspace & agent console", authOnly: true },
+    { label: "Blog",      path: "/blog",      icon: "BookOpen",   tooltip: "Read blog posts" },
+    { label: "Docs",      path: "/docs",      icon: "FileText",   tooltip: "Documentation" },
+    { label: "Admin",     path: "/admin",     icon: "Settings",   tooltip: "Admin dashboard", adminOnly: true },
   ];
 
   const filteredNavItems = navigationItems.filter(
-    (item) => !item.adminOnly || isAdmin
+    (item) => (!item.adminOnly || isAdmin) && (!item.authOnly || user)
   );
 
   const isActivePath = (path) => {
     const p = location.pathname;
     if (path === "/" && (p === "/" || p === "/portfolio-home-hero")) return true;
     if (path === "/projects" && (p === "/projects" || p.startsWith("/project"))) return true;
+    if (path === "/workspace" && (p === "/workspace" || p.startsWith("/workspace"))) return true;
     if (path === "/blog" && (p === "/blog" || p.startsWith("/blog/"))) return true;
     if (path === "/docs" && (p === "/docs" || p === "/documentation")) return true;
     if (path === "/admin" && (p === "/admin" || p.startsWith("/admin"))) return true;
@@ -187,7 +189,12 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
 
               {user ? (
                 <div className="flex items-center space-x-2">
-                  <div className="hidden xl:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-surface/80 border border-border-accent/30 text-xs">
+                  <Link
+                    to="/workspace"
+                    className="hidden xl:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-surface/80 border border-border-accent/30 text-xs hover:border-primary/50 transition-colors"
+                    title="Open Workspace"
+                  >
+                    <Icon name="Layout" size={14} className="text-primary" />
                     <span className="text-text-secondary truncate max-w-[120px]">
                       {userProfile?.full_name || user?.email?.split("@")[0]}
                     </span>
@@ -196,7 +203,7 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
                         Admin
                       </span>
                     )}
-                  </div>
+                  </Link>
                   <Button
                     variant="secondary"
                     size="sm"

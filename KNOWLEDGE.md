@@ -193,3 +193,26 @@
    - Verified 0 ESLint errors/warnings across all new and modified files (`npm run lint` clean).
    - Removed unused React import in `ThemeContext.jsx`.
    - Ready for external websites and apps to display live user projects securely.
+
+### User Showcase, Collaborative Workspace & Agent Workforce Implementation
+- **Neon Database Migration (`db/patch_20261107b_user_showcase.sql`)**:
+  - Added `username TEXT UNIQUE` (indexed with lower-case lookup), `skills TEXT[]`, `theme_preference` to `wisdomintech.user_profiles`.
+  - Backfilled usernames for existing profiles and configured `/u/mike` for `mikewillkraft@gmail.com`.
+  - Created `wisdomintech.project_members` for team collaboration (`owner`, `editor`, `contributor`, `viewer`).
+  - Created `wisdomintech.project_repositories` for connected GitHub/GitLab repositories with metadata tracking (`stars`, `forks`, `branch`, `last_synced_at`).
+  - Created `wisdomintech.project_agent_tasks` for orchestrating autonomous AI agent runs.
+- **Backend APIs Mounted in `server.js`**:
+  - `GET /api/profile` & `PUT /api/profile`: Authenticated user profile and showcase management with username conflict checks.
+  - `GET /api/profile/showcase?username=...`: Public CORS-enabled endpoint returning creator profile, aggregated metrics (views, likes, categories), and published projects.
+  - `GET`, `POST`, `PUT`, `DELETE /api/workspace/projects`: Project Studio CRUD endpoints for owners and collaborators.
+  - `GET`, `POST`, `DELETE /api/workspace/repos`: Linked GitHub/GitLab repository management with automatic GitHub metadata enrichment.
+  - `GET`, `POST /api/workspace/agents`: Autonomous AI Agent runner supporting `doc_generator` (Markdown architecture guides), `code_reviewer` (audit checklist & grades), and `release_notes` (changelog synthesizer).
+- **Frontend Pages & Services**:
+  - `src/utils/showcaseService.js` & `src/utils/workspaceService.js`: API clients for showcase and workspace operations.
+  - `src/pages/creator-showcase/index.jsx`: Public portfolio showcase at `/u/:username` (e.g. `/u/mike`) and `/@:username` with hero profile, skills chips, metrics bar, project grid with search/filtering, share button, and developer API embed modal.
+  - `src/pages/user-workspace/index.jsx`: Member project management console at `/workspace` with Projects Studio, Connected Repos tab, Agent Workforce execution panel, and Showcase Profile editor.
+  - `src/components/auth/RequireAuth.jsx`: Route guard allowing any authenticated user to enter `/workspace` while `/admin` remains strictly protected by `RequireAdmin`.
+  - `src/components/ui/HeaderNavigation.jsx`: Added Workspace link to top navigation for authenticated users, with direct user profile badge link.
+- **Verification**:
+  - Tested `/api/profile/showcase?username=mike` -> returns 200 OK with full creator profile and 3 seeded published projects.
+  - Zero ESLint errors and zero warnings across all files.

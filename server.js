@@ -208,6 +208,26 @@ app.all(
   ),
 );
 app.all(
+  "/api/profile",
+  wrap(withTransform(require("./backend/profile/index.js"), { camel: true })),
+);
+app.all(
+  "/api/profile/showcase",
+  wrap(withTransform(require("./backend/profile/showcase.js"), { camel: true })),
+);
+app.all(
+  "/api/workspace/projects",
+  wrap(withTransform(require("./backend/workspace/projects.js"), { camel: true })),
+);
+app.all(
+  "/api/workspace/repos",
+  wrap(withTransform(require("./backend/workspace/repos.js"), { camel: true })),
+);
+app.all(
+  "/api/workspace/agents",
+  wrap(withTransform(require("./backend/workspace/agents.js"), { camel: true })),
+);
+app.all(
   "/api/profile/avatar",
   wrap(withTransform(require("./backend/profile/avatar.js"), { camel: true })),
 );

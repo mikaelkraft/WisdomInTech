@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
           ? url.searchParams.get("userId")
           : me.id;
       const { rows } = await query(
-        `SELECT id, email, full_name, avatar_url, role, bio, website_url, twitter_handle, github_handle, linkedin_handle, location, headline, profile_meta, banned, warning_count FROM wisdomintech.user_profiles WHERE id = $1`,
+        `SELECT id, email, full_name, username, avatar_url, role, bio, website_url, twitter_handle, github_handle, linkedin_handle, location, headline, skills, theme_preference, profile_meta, banned, warning_count FROM wisdomintech.user_profiles WHERE id = $1`,
         [targetId],
       );
       if (!rows.length) return error(res, "Not found", 404);
@@ -75,7 +75,10 @@ module.exports = async function handler(req, res) {
       // Build update
       const allowedFields = [
         "full_name",
+        "username",
         "bio",
+        "skills",
+        "theme_preference",
         "website_url",
         "twitter_handle",
         "github_handle",
@@ -104,11 +107,38 @@ module.exports = async function handler(req, res) {
       };
       const normHandle = (h) =>
         h ? String(h).trim().replace(/^@+/, "").slice(0, 50) : h;
+
+      if ("username" in body) {
+        let uVal = String(body.username || "")
+          .trim()
+          .toLowerCase()
+          .replace(/^@+/, "");
+        if (uVal && !/^[a-z0-9_-]{3,30}$/.test(uVal)) {
+          return error(
+            res,
+            "Username must be 3-30 characters and contain only letters, numbers, hyphens, and underscores.",
+            400,
+          );
+        }
+        if (uVal && uVal !== existing.username) {
+          const { rows: conflict } = await query(
+            "SELECT id FROM wisdomintech.user_profiles WHERE LOWER(username) = LOWER($1) AND id != $2",
+            [uVal, targetUserId],
+          );
+          if (conflict.length) {
+            return error(res, "Username is already taken by another user.", 409);
+          }
+        }
+        body.username = uVal;
+      }
+
       for (const f of allowedFields) {
         if (!(f in body)) continue;
         const rule = rules[f];
-        if (!rule || !rule.enabled) continue; // skip disabled entirely
+        // Allow username, skills, theme_preference even if not in legacy field rules table
+        if (rule && !rule.enabled) continue; // skip disabled entirely
         if (
+          rule &&
           me.role !== "admin" &&
           !(rule.editable_roles || []).includes(me.role)
         )
@@ -117,6 +147,9 @@ module.exports = async function handler(req, res) {
         if (f.endsWith("_handle")) val = normHandle(val);
         if (f === "website_url") val = normUrl(val);
         if (f === "avatar_url") val = normUrl(val);
+        if (f === "skills" && Array.isArray(val)) {
+          val = val.map((s) => String(s).trim()).filter(Boolean).slice(0, 25);
+        }
         if (typeof val === "string") val = val.trim();
         if (JSON.stringify(existing[f]) !== JSON.stringify(val)) {
           changed.push({ field: f, old: existing[f], val });
@@ -141,7 +174,7 @@ module.exports = async function handler(req, res) {
           fields: missingRequired,
         });
       sets.push("updated_at = now()");
-      const sql = `UPDATE wisdomintech.user_profiles SET ${sets.join(", ")} WHERE id = $1 RETURNING id, email, full_name, avatar_url, role, bio, website_url, twitter_handle, github_handle, linkedin_handle, location, headline, profile_meta`;
+      const sql = `UPDATE wisdomintech.user_profiles SET ${sets.join(", ")} WHERE id = $1 RETURNING id, email, full_name, username, avatar_url, role, bio, skills, theme_preference, website_url, twitter_handle, github_handle, linkedin_handle, location, headline, profile_meta`;
       const { rows } = await query(sql, params);
       if (!rows.length) return error(res, "Not found", 404);
       // Audit log inserts

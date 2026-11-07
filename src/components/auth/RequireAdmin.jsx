@@ -61,13 +61,22 @@ const RequireAdmin = ({ children }) => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
+                variant="primary"
+                onClick={() => navigate("/workspace")}
+                iconName="Layout"
+                iconPosition="left"
+                className="active:scale-95 transition-all duration-200 bg-cyan-600 hover:bg-cyan-500 text-white"
+              >
+                Go to Workspace
+              </Button>
+              <Button
                 variant="outline"
                 onClick={() => navigate("/")}
                 iconName="Home"
                 iconPosition="left"
                 className="active:scale-95 transition-all duration-200"
               >
-                Back to Home
+                Home
               </Button>
               <Button
                 variant="secondary"
