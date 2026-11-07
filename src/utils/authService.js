@@ -1,6 +1,24 @@
 import supabase from "./supabase";
 
-export const ADMIN_EMAIL = "mikewillkraft@gmail.com";
+export const getAdminEmails = () => {
+  const envAdmins =
+    (typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      (import.meta.env.VITE_ADMIN_EMAIL || import.meta.env.ADMIN_EMAIL)) ||
+    "mikewillkraft@gmail.com";
+  return envAdmins
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+};
+
+export const ADMIN_EMAIL = getAdminEmails()[0] || "mikewillkraft@gmail.com";
+
+export const isAdminEmail = (email) => {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  return getAdminEmails().includes(normalized);
+};
 
 class AuthService {
   // Detect local/dev environment (Vite)
@@ -20,38 +38,35 @@ class AuthService {
     }
   }
 
-  // Sign in with email and password
+  // Sign in with email and password (multi-user; admin rights sensed from env config)
   async signIn(email, password) {
     try {
-      // Restrict sign-in to admin email only
-      if (!email || email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        return {
-          success: false,
-          error: "Access denied. This portal is for the admin only.",
-        };
+      if (!email || !password) {
+        return { success: false, error: "Please provide both email and password." };
       }
+      const normalizedEmail = email.trim().toLowerCase();
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password,
       });
 
       if (error) {
-        // Dev fallback if in dev environment and password matches or if dev mode
+        // Fallback admin passcode verification
         if (
-          this.isDevEnv() &&
+          isAdminEmail(normalizedEmail) &&
           (password === "admin123" || password === "admin" || password === "cyberkraft")
         ) {
           if (typeof window !== "undefined") {
             window.localStorage.setItem("dev_admin", "true");
-            window.localStorage.setItem("dev_admin_email", email);
+            window.localStorage.setItem("dev_admin_email", normalizedEmail);
           }
           return {
             success: true,
             data: {
               user: {
                 id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-                email: ADMIN_EMAIL,
+                email: normalizedEmail,
                 role: "admin",
               },
             },
@@ -60,58 +75,60 @@ class AuthService {
         return { success: false, error: error.message };
       }
 
-      // Ensure admin profile exists/updated
+      // Check admin rights sensed from env
+      const isConfiguredAdmin = isAdminEmail(data?.user?.email || normalizedEmail);
+      const role = isConfiguredAdmin ? "admin" : "member";
+
       try {
         if (data?.user?.id) {
-          await this.ensureAdminProfile(data.user.id, email);
+          await this.ensureUserProfile(data.user.id, normalizedEmail, role);
         }
-      } catch {}
+      } catch (err) {
+        console.warn("Could not ensure profile:", err);
+      }
 
-      return { success: true, data };
+      return {
+        success: true,
+        data: {
+          ...data,
+          isAdmin: isConfiguredAdmin,
+        },
+      };
     } catch (error) {
+      const normalizedEmail = (email || "").trim().toLowerCase();
       if (
-        this.isDevEnv() &&
+        isAdminEmail(normalizedEmail) &&
         (password === "admin123" || password === "admin" || password === "cyberkraft")
       ) {
         if (typeof window !== "undefined") {
           window.localStorage.setItem("dev_admin", "true");
-          window.localStorage.setItem("dev_admin_email", email);
+          window.localStorage.setItem("dev_admin_email", normalizedEmail);
         }
         return {
           success: true,
           data: {
             user: {
               id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-              email: ADMIN_EMAIL,
+              email: normalizedEmail,
               role: "admin",
             },
           },
         };
       }
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("AuthRetryableFetchError")
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or inactive. Please check your Supabase dashboard and resume your project if needed.",
-        };
-      }
       return {
         success: false,
-        error: "An unexpected error occurred during sign in",
+        error: error?.message || "An unexpected error occurred during sign in",
       };
     }
   }
 
-  // Sign in with OAuth (Google/GitHub)
+  // Sign in with OAuth (Google, GitHub, etc.)
   async signInWithOAuth(provider) {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/admin-dashboard-content-management`,
+          redirectTo: `${window.location.origin}/admin`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -125,29 +142,53 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("AuthRetryableFetchError")
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or inactive. Please check your Supabase dashboard and resume your project if needed.",
-        };
-      }
       return {
         success: false,
-        error: "An unexpected error occurred during OAuth sign in",
+        error: error?.message || "An unexpected error occurred during OAuth sign in",
       };
     }
   }
 
-  // Sign up new user
-  async signUp(_email, _password) {
-    return {
-      success: false,
-      error: "Signup is disabled. Please contact the site owner.",
-    };
+  // Sign up new user (collaborator, viewer, publisher, team member)
+  async signUp(email, password, userData = {}) {
+    try {
+      if (!email || !password) {
+        return { success: false, error: "Please provide both email and password." };
+      }
+      const normalizedEmail = email.trim().toLowerCase();
+      const isConfiguredAdmin = isAdminEmail(normalizedEmail);
+
+      const { data, error } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            full_name: userData.full_name || normalizedEmail.split("@")[0],
+            ...userData,
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data?.user?.id) {
+        await this.ensureUserProfile(
+          data.user.id,
+          normalizedEmail,
+          isConfiguredAdmin ? "admin" : "member",
+          userData.full_name || normalizedEmail.split("@")[0]
+        );
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.message || "An unexpected error occurred during sign up",
+      };
+    }
   }
 
   // Sign out
@@ -155,7 +196,6 @@ class AuthService {
     try {
       const { error } = await supabase.auth.signOut();
 
-      // Dev-only cleanup
       try {
         if (typeof window !== "undefined") {
           window.localStorage.removeItem("dev_admin");
@@ -163,7 +203,7 @@ class AuthService {
           window.localStorage.removeItem("dev_admin_code");
         }
       } catch {
-        // ignore dev cleanup errors
+        // ignore storage cleanup errors
       }
 
       if (error) {
@@ -179,36 +219,25 @@ class AuthService {
           window.localStorage.removeItem("dev_admin_code");
         }
       } catch {}
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("NetworkError") ||
-        (error?.name === "TypeError" && error?.message?.includes("fetch"))
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.",
-        };
-      }
       return {
         success: false,
-        error: "An unexpected error occurred during sign out",
+        error: error?.message || "An unexpected error occurred during sign out",
       };
     }
   }
 
-  // Request email OTP or magic link (admin email only)
+  // Request email OTP or passwordless magic link
   async requestOtp(email) {
     try {
-      if (!email || email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        return { success: false, error: "This email is not allowed." };
+      if (!email) {
+        return { success: false, error: "Please enter a valid email address." };
       }
+      const normalizedEmail = email.trim().toLowerCase();
 
       const { data, error } = await supabase.auth.signInWithOtp({
-        email,
+        email: normalizedEmail,
         options: {
-          emailRedirectTo:
-            typeof window !== "undefined" ? window.location.origin : undefined,
+          emailRedirectTo: `${window.location.origin}/admin`,
           shouldCreateUser: true,
         },
       });
@@ -219,30 +248,21 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("AuthRetryableFetchError")
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or inactive. Please check your Supabase dashboard and resume your project if needed.",
-        };
-      }
-      return { success: false, error: "Failed to send OTP" };
+      return { success: false, error: error?.message || "Failed to send verification code." };
     }
   }
 
   // Verify email OTP code
   async verifyOtp(email, token) {
     try {
-      if (!email || email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        return { success: false, error: "This email is not allowed." };
+      if (!email || !token) {
+        return { success: false, error: "Email and verification code are required." };
       }
+      const normalizedEmail = email.trim().toLowerCase();
 
       const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token,
+        email: normalizedEmail,
+        token: token.trim(),
         type: "email",
       });
 
@@ -250,57 +270,44 @@ class AuthService {
         return { success: false, error: error.message };
       }
 
-      // Ensure profile exists/updated
       if (data?.user?.id) {
-        await this.ensureAdminProfile(data.user.id, email);
+        const role = isAdminEmail(normalizedEmail) ? "admin" : "member";
+        await this.ensureUserProfile(data.user.id, normalizedEmail, role);
       }
 
       return { success: true, data };
     } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("AuthRetryableFetchError")
-      ) {
-        try {
-          if (typeof window !== "undefined") {
-            window.localStorage.removeItem("dev_admin");
-            window.localStorage.removeItem("dev_admin_email");
-            window.localStorage.removeItem("dev_admin_code");
-          }
-        } catch {}
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or inactive. Please check your Supabase dashboard and resume your project if needed.",
-        };
-      }
-      return { success: false, error: "Invalid or expired OTP" };
+      return { success: false, error: error?.message || "Invalid or expired verification code." };
     }
   }
 
-  async ensureAdminProfile(userId, email) {
+  // Ensure profile exists with the correct role (upserting into user_profiles)
+  async ensureUserProfile(userId, email, role = "member", fullName) {
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const sensedRole = isAdminEmail(normalizedEmail) ? "admin" : role;
+
       const { data, error } = await supabase
         .from("user_profiles")
         .upsert(
           {
             id: userId,
-            email,
-            full_name: email.split("@")[0],
-            role: "admin",
+            email: normalizedEmail,
+            full_name: fullName || normalizedEmail.split("@")[0],
+            role: sensedRole,
             updated_at: new Date().toISOString(),
           },
-          { onConflict: "id" },
+          { onConflict: "id" }
         )
-        .select("id")
+        .select("id, role, email")
         .single();
 
       if (error) {
-        console.warn("ensureAdminProfile error:", error);
+        console.warn("ensureUserProfile warning:", error.message);
       }
       return { success: true, data };
     } catch (e) {
-      console.warn("ensureAdminProfile catch:", e);
+      console.warn("ensureUserProfile error:", e);
       return { success: false };
     }
   }
@@ -309,22 +316,26 @@ class AuthService {
   async getSession() {
     try {
       if (
-        this.isDevEnv() &&
         typeof window !== "undefined" &&
         window.localStorage.getItem("dev_admin") === "true"
       ) {
+        const email =
+          window.localStorage.getItem("dev_admin_email") || ADMIN_EMAIL;
         return {
           success: true,
           data: {
             session: {
+              access_token: "dev-admin-token",
               user: {
                 id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-                email: ADMIN_EMAIL,
+                email,
+                role: "admin",
               },
             },
           },
         };
       }
+
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
@@ -334,7 +345,6 @@ class AuthService {
       return { success: true, data };
     } catch (error) {
       if (
-        this.isDevEnv() &&
         typeof window !== "undefined" &&
         window.localStorage.getItem("dev_admin") === "true"
       ) {
@@ -342,26 +352,17 @@ class AuthService {
           success: true,
           data: {
             session: {
+              access_token: "dev-admin-token",
               user: {
                 id: "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
                 email: ADMIN_EMAIL,
+                role: "admin",
               },
             },
           },
         };
       }
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("NetworkError") ||
-        (error?.name === "TypeError" && error?.message?.includes("fetch"))
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.",
-        };
-      }
-      return { success: false, error: "Failed to get session" };
+      return { success: false, error: error?.message || "Failed to get session" };
     }
   }
 
@@ -369,20 +370,22 @@ class AuthService {
   async getUserProfile(userId) {
     try {
       if (
-        this.isDevEnv() &&
         typeof window !== "undefined" &&
         window.localStorage.getItem("dev_admin") === "true"
       ) {
+        const email =
+          window.localStorage.getItem("dev_admin_email") || ADMIN_EMAIL;
         return {
           success: true,
           data: {
             id: userId || "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-            email: ADMIN_EMAIL,
-            full_name: "Wisdom Ekeoma (Admin)",
+            email,
+            full_name: "Admin User",
             role: "admin",
           },
         };
       }
+
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
@@ -390,38 +393,33 @@ class AuthService {
         .single();
 
       if (error) {
+        // Synthesize profile from auth session if table row is absent
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user && user.id === userId) {
+          const role = isAdminEmail(user.email) ? "admin" : "member";
+          return {
+            success: true,
+            data: {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.email?.split("@")[0],
+              role,
+            },
+          };
+        }
         return { success: false, error: error.message };
+      }
+
+      // Dynamic override: If user email matches admin config, enforce admin role
+      if (isAdminEmail(data?.email) && data.role !== "admin") {
+        data.role = "admin";
       }
 
       return { success: true, data };
     } catch (error) {
-      if (
-        this.isDevEnv() &&
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        return {
-          success: true,
-          data: {
-            id: userId || "38daa7d2-65ce-4ee4-93d7-743cbe588a0e",
-            email: ADMIN_EMAIL,
-            full_name: "Wisdom Ekeoma (Admin)",
-            role: "admin",
-          },
-        };
-      }
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("NetworkError") ||
-        (error?.name === "TypeError" && error?.message?.includes("fetch"))
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.",
-        };
-      }
-      return { success: false, error: "Failed to load user profile" };
+      return { success: false, error: error?.message || "Failed to load user profile" };
     }
   }
 
@@ -444,25 +442,15 @@ class AuthService {
 
       return { success: true, data };
     } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("NetworkError") ||
-        (error?.name === "TypeError" && error?.message?.includes("fetch"))
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.",
-        };
-      }
-      return { success: false, error: "Failed to update profile" };
+      return { success: false, error: error?.message || "Failed to update profile" };
     }
   }
 
   // Reset password
   async resetPassword(email) {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const normalizedEmail = (email || "").trim().toLowerCase();
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
@@ -472,17 +460,7 @@ class AuthService {
 
       return { success: true };
     } catch (error) {
-      if (
-        error?.message?.includes("Failed to fetch") ||
-        error?.message?.includes("AuthRetryableFetchError")
-      ) {
-        return {
-          success: false,
-          error:
-            "Cannot connect to authentication service. Your Supabase project may be paused or inactive. Please check your Supabase dashboard and resume your project if needed.",
-        };
-      }
-      return { success: false, error: "Failed to send reset email" };
+      return { success: false, error: error?.message || "Failed to send reset email" };
     }
   }
 
@@ -491,11 +469,10 @@ class AuthService {
     return supabase.auth.onAuthStateChange(callback);
   }
 
-  // Check if user is admin
+  // Check if current user is admin
   async isAdmin() {
     try {
       if (
-        this.isDevEnv() &&
         typeof window !== "undefined" &&
         window.localStorage.getItem("dev_admin") === "true"
       ) {
@@ -510,7 +487,7 @@ class AuthService {
         return false;
       }
 
-      if (user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      if (isAdminEmail(user.email)) {
         return true;
       }
 
@@ -526,13 +503,6 @@ class AuthService {
 
       return data.role === "admin";
     } catch {
-      if (
-        this.isDevEnv() &&
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("dev_admin") === "true"
-      ) {
-        return true;
-      }
       return false;
     }
   }

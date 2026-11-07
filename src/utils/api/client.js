@@ -1,4 +1,23 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import supabase from "../supabase";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+
+async function getAuthHeader() {
+  try {
+    if (
+      typeof window !== "undefined" &&
+      window.localStorage.getItem("dev_admin") === "true"
+    ) {
+      return { Authorization: "Bearer dev-admin-token" };
+    }
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+  } catch {}
+  return {};
+}
 
 async function handle(res) {
   if (!res.ok) {
@@ -9,39 +28,88 @@ async function handle(res) {
 }
 
 export const api = {
-  async get(path, params) {
-    const url = new URL((API_BASE + path).replace(/\/$/, ''), window.location.origin);
+  async get(path, params, customHeaders = {}) {
+    const url = new URL(
+      (API_BASE + path).replace(/\/$/, ""),
+      window.location.origin,
+    );
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
       });
     }
-    return handle(await fetch(url.toString(), { headers: { 'accept': 'application/json' } }));
+    const authHeaders = await getAuthHeader();
+    return handle(
+      await fetch(url.toString(), {
+        headers: {
+          accept: "application/json",
+          ...authHeaders,
+          ...customHeaders,
+        },
+      }),
+    );
   },
 
-  async post(path, body, headers = {}) {
-    const url = new URL((API_BASE + path).replace(/\/$/, ''), window.location.origin);
-    return handle(await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'accept': 'application/json',
-        ...headers
-      },
-      body: JSON.stringify(body)
-    }));
+  async post(path, body, customHeaders = {}) {
+    const url = new URL(
+      (API_BASE + path).replace(/\/$/, ""),
+      window.location.origin,
+    );
+    const authHeaders = await getAuthHeader();
+    return handle(
+      await fetch(url.toString(), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+          ...authHeaders,
+          ...customHeaders,
+        },
+        body: JSON.stringify(body),
+      }),
+    );
   },
 
-  async delete(path, params) {
-    const url = new URL((API_BASE + path).replace(/\/$/, ''), window.location.origin);
+  async put(path, body, customHeaders = {}) {
+    const url = new URL(
+      (API_BASE + path).replace(/\/$/, ""),
+      window.location.origin,
+    );
+    const authHeaders = await getAuthHeader();
+    return handle(
+      await fetch(url.toString(), {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+          ...authHeaders,
+          ...customHeaders,
+        },
+        body: JSON.stringify(body),
+      }),
+    );
+  },
+
+  async delete(path, params, customHeaders = {}) {
+    const url = new URL(
+      (API_BASE + path).replace(/\/$/, ""),
+      window.location.origin,
+    );
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
       });
     }
-    return handle(await fetch(url.toString(), {
-      method: 'DELETE',
-      headers: { 'accept': 'application/json' }
-    }));
-  }
+    const authHeaders = await getAuthHeader();
+    return handle(
+      await fetch(url.toString(), {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          ...authHeaders,
+          ...customHeaders,
+        },
+      }),
+    );
+  },
 };

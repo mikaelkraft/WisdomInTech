@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import authService, { ADMIN_EMAIL } from "../utils/authService";
+import authService, { isAdminEmail } from "../utils/authService";
 
 const AuthContext = createContext();
 
@@ -32,12 +32,18 @@ export function AuthProvider({ children }) {
           const profileResult = await authService.getUserProfile(authUser.id);
 
           if (profileResult?.success && isMounted) {
-            setUserProfile(profileResult.data);
+            const role = isAdminEmail(authUser.email)
+              ? "admin"
+              : profileResult.data.role || "member";
+            setUserProfile({
+              ...profileResult.data,
+              role,
+            });
           } else if (isMounted) {
             setUserProfile({
               id: authUser.id,
               email: authUser.email,
-              role: authUser.email === ADMIN_EMAIL ? "admin" : "viewer",
+              role: isAdminEmail(authUser.email) ? "admin" : "member",
             });
           }
         }
@@ -70,12 +76,18 @@ export function AuthProvider({ children }) {
             // Fetch user profile for signed in user
             authService.getUserProfile(session.user.id).then((profileResult) => {
               if (profileResult?.success && isMounted) {
-                setUserProfile(profileResult.data);
+                const role = isAdminEmail(session.user.email)
+                  ? "admin"
+                  : profileResult.data.role || "member";
+                setUserProfile({
+                  ...profileResult.data,
+                  role,
+                });
               } else if (isMounted) {
                 setUserProfile({
                   id: session.user.id,
                   email: session.user.email,
-                  role: session.user.email === ADMIN_EMAIL ? "admin" : "viewer",
+                  role: isAdminEmail(session.user.email) ? "admin" : "member",
                 });
               }
             });
@@ -87,7 +99,10 @@ export function AuthProvider({ children }) {
           }
         },
       );
-      authSub = authChangeRes?.data?.subscription || authChangeRes?.subscription || null;
+      authSub =
+        authChangeRes?.data?.subscription ||
+        authChangeRes?.subscription ||
+        null;
     } catch (e) {
       console.warn("Auth subscription setup warning:", e);
     }
@@ -112,13 +127,17 @@ export function AuthProvider({ children }) {
       if (result.data?.user) {
         setUser(result.data.user);
         const profile = await authService.getUserProfile(result.data.user.id);
+        const role = isAdminEmail(result.data.user.email)
+          ? "admin"
+          : profile?.data?.role || "member";
+
         if (profile?.success && profile?.data) {
-          setUserProfile(profile.data);
+          setUserProfile({ ...profile.data, role });
         } else {
           setUserProfile({
             id: result.data.user.id,
             email: result.data.user.email,
-            role: "admin",
+            role,
           });
         }
       }
@@ -141,6 +160,17 @@ export function AuthProvider({ children }) {
       if (!result?.success) {
         setAuthError(result?.error || "Signup failed");
         return { success: false, error: result?.error };
+      }
+
+      if (result.data?.user) {
+        setUser(result.data.user);
+        const role = isAdminEmail(result.data.user.email) ? "admin" : "member";
+        setUserProfile({
+          id: result.data.user.id,
+          email: result.data.user.email,
+          full_name: userData.full_name || result.data.user.email.split("@")[0],
+          role,
+        });
       }
 
       return { success: true, data: result.data };
@@ -169,6 +199,52 @@ export function AuthProvider({ children }) {
         "Something went wrong during OAuth login. Please try again.";
       setAuthError(errorMsg);
       console.error("OAuth sign in error:", error);
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Request email OTP
+  const requestOtp = async (email) => {
+    try {
+      setAuthError(null);
+      const result = await authService.requestOtp(email);
+      if (!result?.success) {
+        setAuthError(result?.error || "Failed to send verification code");
+        return { success: false, error: result?.error };
+      }
+      return { success: true, data: result.data };
+    } catch (err) {
+      console.warn("OTP request error:", err);
+      const errorMsg = "Failed to send code. Please try again.";
+      setAuthError(errorMsg);
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Verify email OTP
+  const verifyOtp = async (email, token) => {
+    try {
+      setAuthError(null);
+      const result = await authService.verifyOtp(email, token);
+      if (!result?.success) {
+        setAuthError(result?.error || "Invalid verification code");
+        return { success: false, error: result?.error };
+      }
+
+      if (result.data?.user) {
+        setUser(result.data.user);
+        const role = isAdminEmail(result.data.user.email) ? "admin" : "member";
+        setUserProfile({
+          id: result.data.user.id,
+          email: result.data.user.email,
+          role,
+        });
+      }
+      return { success: true, data: result.data };
+    } catch (err) {
+      console.warn("OTP verify error:", err);
+      const errorMsg = "Verification failed. Please try again.";
+      setAuthError(errorMsg);
       return { success: false, error: errorMsg };
     }
   };
@@ -247,13 +323,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const isAdmin =
+    userProfile?.role === "admin" ||
+    isAdminEmail(user?.email) ||
+    (typeof window !== "undefined" &&
+      window.localStorage.getItem("dev_admin") === "true");
+
   const value = {
     user,
     userProfile,
     loading,
     authError,
+    isAdmin,
     signIn,
     signUp,
+    requestOtp,
+    verifyOtp,
     signInWithOAuth,
     signOut,
     updateProfile,

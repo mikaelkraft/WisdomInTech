@@ -1,9 +1,7 @@
 import { X } from "lucide-react";
 import Login from "./Login.jsx";
 
-// Auth modal (login only)
-
-const AuthModal = ({ isOpen, onClose }) => {
+const AuthModal = ({ isOpen, onClose, defaultMode = "password" }) => {
   if (!isOpen) return null;
 
   const handleSuccess = () => {
@@ -20,23 +18,22 @@ const AuthModal = ({ isOpen, onClose }) => {
         />
 
         {/* Modal Content */}
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full max-w-md my-8">
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute -top-2 -right-2 z-10 w-8 h-8 bg-surface border border-border-accent rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-primary transition-all shadow-glow-primary"
+            className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-surface border border-border-accent rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-primary transition-all shadow-glow-primary active:scale-90"
+            aria-label="Close modal"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Auth Form */}
-          <Login onClose={onClose} onSuccess={handleSuccess} />
-
-          {/* Mode Switch */}
-          <div className="mt-4 text-center text-sm text-text-secondary">
-            Signup is disabled. Only the site owner can access the admin
-            dashboard.
-          </div>
+          <Login
+            onClose={onClose}
+            onSuccess={handleSuccess}
+            defaultMode={defaultMode}
+          />
         </div>
       </div>
     </div>

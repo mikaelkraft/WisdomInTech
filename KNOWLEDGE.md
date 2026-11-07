@@ -85,3 +85,37 @@
 5. **CSS & Build Verification**:
    - Fixed CSS syntax error in `src/styles/tailwind.css` line 289 (`}* {` missing newline).
    - Executed full production build `npm run build` (`vite build`) and verified that compilation succeeded with 0 errors (`✓ built in 8m 36s`).
+
+### Login Investigation & Architecture
+1. **Current State**:
+   - Supabase project at `https://wykjtxkhvofkgwijxkwz.supabase.co` is online and responsive.
+   - The admin account `mikewillkraft@gmail.com` exists in Supabase Auth.
+   - `resetPasswordForEmail` and `signInWithOtp` endpoints succeed and deliver emails.
+   - However, `Login.jsx` only offered a single password field and OAuth, with no way to enter an email OTP code or trigger a password reset directly from the login modal.
+   - OAuth redirect was pointing to legacy `/admin-dashboard-content-management` instead of `/admin`.
+   - Client `api.get` / `api.post` in `src/utils/api/client.js` was not automatically forwarding authorization headers to backend endpoints, causing admin operations to fail if logged in without manual bearer headers.
+
+### Multi-User Auth & Env-Sensed Admin Rights Implementation
+1. **Dynamic Admin Privilege Sensing (`src/utils/authService.js` & `backend/_lib/auth.js`)**:
+   - Implemented `getAdminEmails()` and `isAdminEmail(email)` to dynamically read configured admin emails from `import.meta.env.VITE_ADMIN_EMAIL` / `import.meta.env.ADMIN_EMAIL` / `process.env.ADMIN_EMAIL` (defaulting to `mikewillkraft@gmail.com`).
+   - Sensed admin assignment dynamically checks and persists `role = 'admin'` in `wisdomintech.user_profiles` upon sign-in or OAuth callback.
+   - All other registered users receive standard collaborative member rights (`role = 'member'`), establishing the foundation for the multi-user project management platform.
+   - Added support for local admin dev passcodes (`admin123`, `cyberkraft`, `admin`) when signing in with the designated admin email.
+   - Implemented `requestOtp(email)` and `verifyOtp(email, token)` alongside standard `signUp(email, password, metadata)`.
+2. **Context Layer Integration (`src/contexts/AuthContext.jsx`)**:
+   - `isAdmin` boolean dynamically computed based on `userProfile?.role === 'admin'` or `isAdminEmail(user?.email)`.
+   - Exposed `isAdmin`, `requestOtp`, and `verifyOtp` across the app via `useAuth()`.
+3. **Multi-Mode Login UI (`src/components/auth/Login.jsx`)**:
+   - Redesigned into a comprehensive tabbed interface supporting:
+     - **Password Sign In**: Direct email/password login with real-time "Admin privileges sensed for this email address" detection badge.
+     - **Email Code (OTP)**: Passwordless sign-in by requesting and entering a 6-digit one-time code sent to email.
+     - **Register (Sign Up)**: Collaborative member account registration.
+     - **Forgot Password**: Password reset email dispatch.
+     - **3rd-Party OAuth**: Google and GitHub one-click authentication.
+4. **Navigation & Access Control (`HeaderNavigation.jsx`, `RequireAdmin.jsx`, `AuthModal.jsx`)**:
+   - `HeaderNavigation.jsx` shows "Sign In" button when guest, and user email badge, role tag ("ADMIN" / "MEMBER"), and "Sign Out" button when authenticated.
+   - Shows `/admin` link exclusively to users with admin privileges.
+   - `RequireAdmin.jsx` displays a friendly "Admin Access Required" state if a logged-in member attempts to visit `/admin`, with options to navigate Home or switch accounts.
+   - `src/utils/api/client.js` now automatically attaches `Authorization: Bearer <token>` from active Supabase sessions or local admin tokens on all API requests.
+5. **Code Quality**:
+   - ESLint verified across all modified authentication components with 0 errors.

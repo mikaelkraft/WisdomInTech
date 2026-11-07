@@ -18,16 +18,12 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
   const searchDebounceRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { userProfile, signOut } = useAuth();
+  const { user, userProfile, signOut, isAdmin } = useAuth();
   const themeCtx = useTheme();
   const activeTheme = themeCtx?.theme ?? "cyberpunk";
   const setTheme = themeCtx?.setTheme ?? (() => {});
   const fontSize = themeCtx?.fontSize ?? "medium";
   const setFontSize = themeCtx?.setFontSize ?? (() => {});
-  const isAdmin = userProfile?.role === "admin";
-  const isDevAdmin =
-    typeof window !== "undefined" &&
-    window.localStorage.getItem("dev_admin") === "true";
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const handleThemeControlsClick = () => {
@@ -45,6 +41,10 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
     { label: "Docs",     path: "/docs",     icon: "FileText",   tooltip: "Documentation" },
     { label: "Admin",    path: "/admin",    icon: "Settings",   tooltip: "Admin dashboard", adminOnly: true },
   ];
+
+  const filteredNavItems = navigationItems.filter(
+    (item) => !item.adminOnly || isAdmin
+  );
 
   const isActivePath = (path) => {
     const p = location.pathname;
@@ -107,12 +107,12 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1">
-              {navigationItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
+                    if (item.adminOnly && !isAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                     }
@@ -185,17 +185,29 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
                 title="Change theme"
               />
 
-              {isAdmin || isDevAdmin ? (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={signOut}
-                  iconName="LogOut"
-                  iconPosition="left"
-                  className="min-w-[100px] active:scale-95 transition-all duration-200"
-                >
-                  Logout
-                </Button>
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="hidden xl:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-surface/80 border border-border-accent/30 text-xs">
+                    <span className="text-text-secondary truncate max-w-[120px]">
+                      {userProfile?.full_name || user?.email?.split("@")[0]}
+                    </span>
+                    {isAdmin && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/20 text-primary uppercase">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={signOut}
+                    iconName="LogOut"
+                    iconPosition="left"
+                    className="min-w-[90px] active:scale-95 transition-all duration-200"
+                  >
+                    Logout
+                  </Button>
+                </div>
               ) : (
                 <Button
                   variant="outline"
@@ -203,15 +215,10 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
                   onClick={() => setAuthModalOpen(true)}
                   iconName="LogIn"
                   iconPosition="left"
-                  className="min-w-[120px] active:scale-95 transition-all duration-200"
+                  className="min-w-[100px] active:scale-95 transition-all duration-200"
                 >
-                  Admin Login
+                  Sign In
                 </Button>
-              )}
-              {isDevAdmin && (
-                <span className="ml-2 text-xs px-2 py-1 rounded-full border border-yellow-400/40 text-yellow-300 bg-yellow-500/10">
-                  Dev OTP
-                </span>
               )}
             </div>
 
@@ -234,7 +241,7 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
                 className="p-2 active:scale-95 transition-all duration-200"
                 title="Change theme"
               />
-              {isAdmin || isDevAdmin ? (
+              {user ? (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -250,7 +257,7 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
                   onClick={() => setAuthModalOpen(true)}
                   iconName="LogIn"
                   className="p-2 active:scale-95 transition-all duration-200"
-                  title="Admin Login"
+                  title="Sign In"
                 />
               )}
               <Button
@@ -284,12 +291,12 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
         <div className="flex flex-col h-full">
           <div className="flex-1 overflow-y-auto py-6">
             <nav className="px-6 space-y-2">
-              {navigationItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={(e) => {
-                    if (item.adminOnly && !isAdmin && !isDevAdmin) {
+                    if (item.adminOnly && !isAdmin) {
                       e.preventDefault();
                       setAuthModalOpen(true);
                       return;
@@ -353,15 +360,15 @@ const HeaderNavigation = ({ onThemeControlsToggle }) => {
         onFontSizeChange={setFontSize}
       />
 
-      {/* Floating Admin button when not logged in */}
-      {!isAdmin && !isDevAdmin && (
+      {/* Floating sign in button when not logged in */}
+      {!user && (
         <button
           onClick={() => setAuthModalOpen(true)}
           className="fixed bottom-6 left-6 z-40 px-3 py-1.5 rounded-full bg-surface/90 backdrop-blur border border-primary/30 text-xs text-text-secondary hover:text-primary hover:border-primary transition-all duration-200 shadow-glow-primary flex items-center space-x-1.5 active:scale-95"
-          title="Open admin login"
+          title="Sign in"
         >
           <Icon name="Lock" size={12} className="text-primary" />
-          <span>Admin</span>
+          <span>Sign In</span>
         </button>
       )}
     </>
