@@ -135,3 +135,12 @@
    - Removed auto-prefilled admin email in `Login.jsx` to prevent leaking the administrator's email address to multi-user visitors.
 5. **Code Quality Verification**:
    - ESLint verified across all modified files with 0 errors and 0 warnings.
+
+### Environment Setup for Multi-User & Secure Admin Architecture
+- Configured `.env` with:
+  - `ADMIN_EMAIL` & `VITE_ADMIN_EMAIL`: Sensed admin privileges configuration.
+  - `VITE_CONTACT_EMAIL`: Public contact address for footer and site settings.
+  - `DEV_ADMIN_TOKEN` & `VITE_DEV_ADMIN_TOKEN`: Cryptographically generated 48-char hex token for authorized dev API operations.
+  - `DEV_ADMIN_USER_ID` & `VITE_DEV_ADMIN_USER_ID`: Fixed UUID for local development user mapping.
+  - `VITE_DEV_ADMIN_PASSCODE`: Optional local development passcode strictly confined to `.env`.
+- Updated `.env.example` with sanitized template documentation for multi-user admin sensing, OAuth, and dev tokens.
